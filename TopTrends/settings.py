@@ -45,8 +45,8 @@ PROJECT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    'rest_framework',
     'corsheaders',
+    'graphene_django',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
@@ -144,6 +144,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#Let to React to make requests to the API
+# Let to React to make requests to the API
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Graphene schema
+
+GRAPHENE = {
+    'SCHEMA': 'TopTrends.schema.schema'
+}
