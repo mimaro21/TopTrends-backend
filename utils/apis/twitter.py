@@ -1,6 +1,7 @@
 import tweepy
 from decouple import config
-from main.models import Country
+import json
+from main.models import Country, TwitterTrend, TwitterCountryTrend
 
 def api_setup():
     
@@ -43,3 +44,44 @@ def load_twitter_countries():
         for country in countries:
             c = Country(name=country, acronym=acronyms[country], woeid=countries[country])
             c.save()
+
+# Get trends of a country
+
+def get_country_trends(country_name, n_trends=10):
+
+    try:
+        country = Country.objects.get(name=country_name)
+        woeid = country.woeid
+
+        api = api_setup()
+
+        country_trends = api.get_place_trends(woeid)
+        country_trends_json = json.dumps(country_trends)
+        country_trends_dict = json.loads(country_trends_json)
+        country_trends_list = country_trends_dict[0]['trends'][:n_trends]
+
+        res = []
+        for t in country_trends_list:
+            res.append((t['name'], t['url'], t['tweet_volume']))
+
+        return res
+    except:
+        return []
+
+def load_country_trends(country_name, n_trends=10):
+
+    trends = get_country_trends(country_name, n_trends)
+
+    if len(trends) > 0:
+
+        country = Country.objects.get(name=country_name)
+
+        if TwitterCountryTrend.objects.filter(country=country).exists():
+            TwitterCountryTrend.objects.filter(country=country).delete()
+
+        tct = TwitterCountryTrend(country=country, trends_number=n_trends)
+        tct.save()
+
+        for t in trends:
+            t = TwitterTrend.objects.create(name=t[0], url=t[1], tweet_volume=t[2], country_trend=tct)
+            t.save()
