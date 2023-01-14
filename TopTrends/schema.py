@@ -3,7 +3,8 @@ from graphene import ObjectType
 from graphene_django import DjangoObjectType
 
 from main.models import Country, TwitterTrend, TwitterCountryTrend
-from utils.apis.twitter import load_twitter_countries, load_country_trends
+from utils.apis.twitter import load_country_trends
+from utils.aux_functions import load_countries
 
 from datetime import datetime, timedelta
 
@@ -21,7 +22,7 @@ class Query(ObjectType):
 
     def resolve_all_countries(self, info, **kwargs):
 
-        load_twitter_countries()
+        load_countries()
 
         return Country.objects.all()
 
@@ -29,14 +30,14 @@ class Query(ObjectType):
 
     def resolve_country_twitter_trends(self, info, **kwargs):
 
-        load_twitter_countries()
+        load_countries()
 
         name = kwargs.get('country') 
         trends_number = kwargs.get('trends_number') if kwargs.get('trends_number') else 5
 
         filtered_country = Country.objects.filter(name=name)
 
-        if filtered_country.exists():
+        if filtered_country.exists() and Country.objects.get(name=name).woeid != None:
 
             if TwitterCountryTrend.objects.filter(country__name=name).exists():
             

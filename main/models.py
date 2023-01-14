@@ -6,8 +6,9 @@ class Country(models.Model):
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30)
-    acronym = models.CharField(max_length=2)
+    acronym = models.CharField(max_length=2, null=True)
     woeid = models.IntegerField(null=True)
+    pn = models.CharField(max_length=30, null=True)
 
     def __str__(self):
         return self.name

@@ -33,18 +33,6 @@ def trend_countries():
 
     return (countries, acronyms)
 
-def load_twitter_countries():
-
-    n_countries = Country.objects.count()
-
-    if n_countries == 0:
-
-        countries, acronyms = trend_countries()
-
-        for country in countries:
-            c = Country(name=country, acronym=acronyms[country], woeid=countries[country])
-            c.save()
-
 # Get trends of a country
 
 def get_country_trends(country_name, n_trends=10):
