@@ -1,6 +1,8 @@
 import re
 from pytrends.request import TrendReq
 
+from main.models import Country, GoogleTrend, GoogleCountryTrend
+
 # Convert snake_case to Title Case
 
 def snake_to_title(string):
@@ -23,3 +25,39 @@ def google_trends_countries():
         countries[snake_to_title(country)] = country
 
     return countries
+
+def get_country_trends(country_name, n_trends=10):
+
+    try:
+
+        country = Country.objects.get(name=country_name)
+        pn = country.pn
+
+        country_trends = pytrends.trending_searches(pn=pn)
+        country_trends_list = country_trends.values.tolist()[:n_trends]
+
+        res = []
+        for t in country_trends_list:
+            res.append(t[0])
+
+        return res
+    except:
+        return []
+
+def load_country_trends(country_name, n_trends=10):
+
+    trends = get_country_trends(country_name, n_trends)
+
+    if len(trends) > 0:
+
+        country = Country.objects.get(name=country_name)
+
+        if GoogleCountryTrend.objects.filter(country=country).exists():
+            GoogleCountryTrend.objects.filter(country=country).delete()
+
+        gct = GoogleCountryTrend(country=country, trends_number=n_trends)
+        gct.save()
+
+        for t in trends:
+            t = GoogleTrend(name=t, country_trend=gct)
+            t.save()

@@ -2,11 +2,11 @@ import graphene
 from graphene import ObjectType
 from graphene_django import DjangoObjectType
 
-from main.models import Country, TwitterTrend, TwitterCountryTrend
-from utils.apis.twitter import load_country_trends
-from utils.aux_functions import load_countries
+from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend
 
-from datetime import datetime, timedelta
+from utils.apis.twitter import load_country_trends as load_twitter_country_trends
+from utils.apis.google_trends import load_country_trends as load_google_country_trends
+from utils.aux_functions import setup_countries, remove_cache
 
 class CountryType(DjangoObjectType):
     class Meta:
@@ -15,6 +15,10 @@ class CountryType(DjangoObjectType):
 class TwitterTrendType(DjangoObjectType):
     class Meta:
         model = TwitterTrend
+
+class GoogleTrendType(DjangoObjectType):
+    class Meta:
+        model = GoogleTrend
 
 class Query(ObjectType):
 
@@ -30,12 +34,7 @@ class Query(ObjectType):
 
     def resolve_country_twitter_trends(self, info, **kwargs):
 
-        load_countries()
-
-        name = kwargs.get('country') 
-        trends_number = kwargs.get('trends_number') if kwargs.get('trends_number') else 5
-
-        filtered_country = Country.objects.filter(name=name)
+        name, trends_number, filtered_country = setup_countries(kwargs)
 
         if filtered_country.exists() and Country.objects.get(name=name).woeid != None:
 
@@ -43,18 +42,39 @@ class Query(ObjectType):
             
                 twitter_country_trends = TwitterCountryTrend.objects.get(country__name=name)
 
-                d1 = twitter_country_trends.insertion_datetime + timedelta(hours=1)
-                d1 = datetime.strptime(str(d1).split("+")[0], "%Y-%m-%d %H:%M:%S.%f")
-                
-                d2 = datetime.strptime(str(datetime.now()), "%Y-%m-%d %H:%M:%S.%f")
+                cond_1 = remove_cache(twitter_country_trends)
 
-                if d1 < d2 - timedelta(hours=1) or twitter_country_trends.trends_number != trends_number:
-                    load_country_trends(name, trends_number)
+                if cond_1 or twitter_country_trends.trends_number != trends_number:
+                    load_twitter_country_trends(name, trends_number)
 
             else:
-                load_country_trends(name, trends_number)
+                load_twitter_country_trends(name, trends_number)
 
             return TwitterTrend.objects.filter(country_trend__country__name=name)                
+
+        return []
+
+    country_google_trends = graphene.List(GoogleTrendType, country=graphene.String(), trends_number=graphene.Int())
+
+    def resolve_country_google_trends(self, info, **kwargs):
+
+        name, trends_number, filtered_country = setup_countries(kwargs)
+
+        if filtered_country.exists() and Country.objects.get(name=name).pn != None:
+
+            if GoogleCountryTrend.objects.filter(country__name=name).exists():
+            
+                google_country_trends = GoogleCountryTrend.objects.get(country__name=name)
+
+                cond_1 = remove_cache(google_country_trends)
+
+                if cond_1 or google_country_trends.trends_number != trends_number:
+                    load_google_country_trends(name, trends_number)
+
+            else:
+                load_google_country_trends(name, trends_number)
+
+            return GoogleTrend.objects.filter(country_trend__country__name=name)                
 
         return []
 

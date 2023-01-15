@@ -44,3 +44,29 @@ class TwitterCountryTrend(models.Model):
 
     class Meta:
         ordering = ['country']
+
+class GoogleTrend(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    country_trend = models.ForeignKey('GoogleCountryTrend', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['id']
+
+
+class GoogleCountryTrend(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    insertion_datetime = models.DateTimeField(auto_now_add=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    trends_number = models.IntegerField()
+
+    def __str__(self):
+        return self.country.name
+
+    class Meta:
+        ordering = ['country']
