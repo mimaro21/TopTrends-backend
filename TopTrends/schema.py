@@ -44,13 +44,13 @@ class Query(ObjectType):
 
                 cond_1 = remove_cache(twitter_country_trends)
 
-                if cond_1 or twitter_country_trends.trends_number != trends_number:
-                    load_twitter_country_trends(name, trends_number)
+                if cond_1:
+                    load_twitter_country_trends(name)
 
             else:
-                load_twitter_country_trends(name, trends_number)
+                load_twitter_country_trends(name)
 
-            return TwitterTrend.objects.filter(country_trend__country__name=name)                
+            return TwitterTrend.objects.filter(country_trend__country__name=name)[:trends_number]      
 
         return []
 
@@ -68,13 +68,13 @@ class Query(ObjectType):
 
                 cond_1 = remove_cache(google_country_trends)
 
-                if cond_1 or google_country_trends.trends_number != trends_number:
-                    load_google_country_trends(name, trends_number)
+                if cond_1:
+                    load_google_country_trends(name)
 
             else:
-                load_google_country_trends(name, trends_number)
+                load_google_country_trends(name)
 
-            return GoogleTrend.objects.filter(country_trend__country__name=name)                
+            return GoogleTrend.objects.filter(country_trend__country__name=name)[:trends_number]         
 
         return []
 

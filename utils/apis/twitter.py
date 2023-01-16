@@ -35,7 +35,7 @@ def trend_countries():
 
 # Get trends of a country
 
-def get_country_trends(country_name, n_trends=10):
+def get_country_trends(country_name):
 
     try:
         country = Country.objects.get(name=country_name)
@@ -46,7 +46,7 @@ def get_country_trends(country_name, n_trends=10):
         country_trends = api.get_place_trends(woeid)
         country_trends_json = json.dumps(country_trends)
         country_trends_dict = json.loads(country_trends_json)
-        country_trends_list = country_trends_dict[0]['trends'][:n_trends]
+        country_trends_list = country_trends_dict[0]['trends']
 
         res = []
         for t in country_trends_list:
@@ -56,9 +56,9 @@ def get_country_trends(country_name, n_trends=10):
     except:
         return []
 
-def load_country_trends(country_name, n_trends=10):
+def load_country_trends(country_name):
 
-    trends = get_country_trends(country_name, n_trends)
+    trends = get_country_trends(country_name)
 
     if len(trends) > 0:
 
@@ -67,7 +67,7 @@ def load_country_trends(country_name, n_trends=10):
         if TwitterCountryTrend.objects.filter(country=country).exists():
             TwitterCountryTrend.objects.filter(country=country).delete()
 
-        tct = TwitterCountryTrend(country=country, trends_number=n_trends)
+        tct = TwitterCountryTrend(country=country)
         tct.save()
 
         for t in trends:

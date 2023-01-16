@@ -26,7 +26,7 @@ def google_trends_countries():
 
     return countries
 
-def get_country_trends(country_name, n_trends=10):
+def get_country_trends(country_name):
 
     try:
 
@@ -34,7 +34,7 @@ def get_country_trends(country_name, n_trends=10):
         pn = country.pn
 
         country_trends = pytrends.trending_searches(pn=pn)
-        country_trends_list = country_trends.values.tolist()[:n_trends]
+        country_trends_list = country_trends.values.tolist()
 
         res = []
         for t in country_trends_list:
@@ -44,9 +44,9 @@ def get_country_trends(country_name, n_trends=10):
     except:
         return []
 
-def load_country_trends(country_name, n_trends=10):
+def load_country_trends(country_name):
 
-    trends = get_country_trends(country_name, n_trends)
+    trends = get_country_trends(country_name)
 
     if len(trends) > 0:
 
@@ -55,7 +55,7 @@ def load_country_trends(country_name, n_trends=10):
         if GoogleCountryTrend.objects.filter(country=country).exists():
             GoogleCountryTrend.objects.filter(country=country).delete()
 
-        gct = GoogleCountryTrend(country=country, trends_number=n_trends)
+        gct = GoogleCountryTrend(country=country)
         gct.save()
 
         for t in trends:

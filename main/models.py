@@ -37,7 +37,6 @@ class TwitterCountryTrend(models.Model):
     id = models.AutoField(primary_key=True)
     insertion_datetime = models.DateTimeField(auto_now_add=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    trends_number = models.IntegerField()
 
     def __str__(self):
         return self.country.name
@@ -63,7 +62,6 @@ class GoogleCountryTrend(models.Model):
     id = models.AutoField(primary_key=True)
     insertion_datetime = models.DateTimeField(auto_now_add=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    trends_number = models.IntegerField()
 
     def __str__(self):
         return self.country.name
