@@ -6,7 +6,7 @@ from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend,
 
 from utils.apis.twitter import load_country_trends as load_twitter_country_trends
 from utils.apis.google_trends import load_country_trends as load_google_country_trends
-from utils.aux_functions import setup_countries, remove_cache
+from utils.aux_functions import setup_countries, remove_cache, load_countries
 
 class CountryType(DjangoObjectType):
     class Meta:
