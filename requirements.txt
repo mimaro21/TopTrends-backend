@@ -4,3 +4,4 @@ django-cors-headers==3.13.0
 mysqlclient==2.1.1
 tweepy==4.12.1
 graphene_django==3.0.0
+pytrends==4.9.0
