@@ -1,5 +1,6 @@
 from utils.apis.twitter import trend_countries
 from utils.apis.google_trends import google_trends_countries
+from utils.apis.countries import all_countries
 
 from main.models import Country
 
@@ -15,26 +16,28 @@ def load_countries():
 
     if n_countries == 0:
 
+        countries = all_countries()
+
         # Load countries from Twitter trends
         twitter_countries, twitter_acronyms = trend_countries()
 
         # Load countries from Google Trends
         gt_countries = google_trends_countries()
 
-        all_countries = set([country for country in twitter_countries] + [country for country in gt_countries])
-        all_countries = list(all_countries)
+        for country in countries:
 
-        for country in all_countries:
+            woeid, country_pn = None, None
 
-            acronym, woeid, country_pn = None, None, None
-
-            if country in twitter_countries:
-                acronym = twitter_acronyms[country]
-                woeid = twitter_countries[country]
-            if country in gt_countries:
-                country_pn = gt_countries[country]
-                
-            c = Country(name=country, acronym=acronym, woeid=woeid, pn=country_pn)
+            if country[0] in twitter_countries:
+                woeid = twitter_countries[country[0]]
+            elif country[1] in twitter_countries:
+                woeid = twitter_countries[country[1]]
+            if country[0] in gt_countries:
+                country_pn = gt_countries[country[0]]
+            elif country[1] in gt_countries:
+                country_pn = gt_countries[country[1]]
+            
+            c = Country(name=country[0], native_name=country[1], acronym=country[2], flag=country[3], woeid=woeid, pn=country_pn)
             c.save()
 
 def setup_countries(kwargs):

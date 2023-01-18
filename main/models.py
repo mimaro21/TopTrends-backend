@@ -5,8 +5,10 @@ from django.db import models
 class Country(models.Model):
 
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30)
-    acronym = models.CharField(max_length=2, null=True)
+    name = models.CharField(max_length=60)
+    native_name = models.CharField(max_length=60)
+    acronym = models.CharField(max_length=2)
+    flag = models.URLField(max_length=100)
     woeid = models.IntegerField(null=True)
     pn = models.CharField(max_length=30, null=True)
 
