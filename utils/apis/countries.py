@@ -12,7 +12,7 @@ def all_countries():
         data = response.json()
 
         for country in data:
-            name = parse_country_name(country['name'])
+            name = country['name']
             native_name = country['nativeName']
             alpha2_code = country['alpha2Code']
             flag = country['flag']
