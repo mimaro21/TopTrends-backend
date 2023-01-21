@@ -2,12 +2,13 @@ import graphene
 from graphene import ObjectType
 from graphene_django import DjangoObjectType
 
-from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, YouTubeTrend, YouTubeCountryTrend
+from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, YouTubeTrend, YouTubeCountryTrend
 
 from utils.apis.twitter import load_country_trends as load_twitter_country_trends
 from utils.apis.google_trends import load_country_trends as load_google_country_trends
+from utils.apis.google_trends import load_google_word_trend
 from utils.apis.youtube import load_country_trends as load_youtube_country_trends
-from utils.aux_functions import setup_countries, remove_cache, load_countries
+from utils.aux_functions import setup_countries, setup_words, remove_cache, load_countries
 
 class CountryType(DjangoObjectType):
     class Meta:
@@ -20,6 +21,10 @@ class TwitterTrendType(DjangoObjectType):
 class GoogleTrendType(DjangoObjectType):
     class Meta:
         model = GoogleTrend
+
+class GoogleWordTrendType(DjangoObjectType):
+    class Meta:
+        model = GoogleWordTrendPeriod
 
 class YouTubeTrendType(DjangoObjectType):
     class Meta:
@@ -80,6 +85,30 @@ class Query(ObjectType):
                 load_google_country_trends(name)
 
             return GoogleTrend.objects.filter(country_trend__country__name=name)[:trends_number]         
+
+        return []
+
+    word_google_trends = graphene.List(GoogleWordTrendType, word=graphene.String(), country=graphene.String(), period_type=graphene.String())
+
+    def resolve_word_google_trends(self, info, **kwargs):
+
+        word, period_type, country_name, filtered_country = setup_words(kwargs)
+
+        if filtered_country.exists():
+
+            if GoogleWordTrend.objects.filter(country__name=country_name, word=word, period_type=period_type).exists():
+
+                google_word_trends = GoogleWordTrend.objects.get(country__name=country_name, word=word, period_type=period_type)
+
+                cond_1 = remove_cache(google_word_trends)
+
+                if cond_1:
+                    load_google_word_trend(word, country_name, period_type)
+
+            else:
+                load_google_word_trend(word, country_name, period_type)
+
+            return GoogleWordTrendPeriod.objects.filter(word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)         
 
         return []
 
