@@ -98,6 +98,34 @@ class GoogleWordTrend(models.Model):
     class Meta:
         ordering = ['country', 'word']
 
+class GoogleTopic(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    topic_title = models.CharField(max_length=100)
+    topic_type = models.CharField(max_length=100)
+    value = models.SmallIntegerField()
+    main_topic = models.ForeignKey('GoogleRelatedTopic', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.main_topic.word + ' - ' + self.topic_title
+
+    class Meta:
+        ordering = ['main_topic', 'topic_title']
+
+class GoogleRelatedTopic(models.Model):
+    
+    id = models.AutoField(primary_key=True)
+    insertion_datetime = models.DateTimeField(auto_now_add=True)
+    word = models.CharField(max_length=100)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    period_type = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.word
+
+    class Meta:
+        ordering = ['id']
+
 class YouTubeTrend(models.Model):
     
     id = models.AutoField(primary_key=True)

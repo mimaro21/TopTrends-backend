@@ -2,11 +2,11 @@ import graphene
 from graphene import ObjectType
 from graphene_django import DjangoObjectType
 
-from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, YouTubeTrend, YouTubeCountryTrend
+from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic, YouTubeTrend, YouTubeCountryTrend
 
 from utils.apis.twitter import load_country_trends as load_twitter_country_trends
 from utils.apis.google_trends import load_country_trends as load_google_country_trends
-from utils.apis.google_trends import load_google_word_trend
+from utils.apis.google_trends import load_google_word_trend, load_related_topics
 from utils.apis.youtube import load_country_trends as load_youtube_country_trends
 from utils.aux_functions import setup_countries, setup_words, remove_cache, load_countries
 
@@ -25,6 +25,10 @@ class GoogleTrendType(DjangoObjectType):
 class GoogleWordTrendType(DjangoObjectType):
     class Meta:
         model = GoogleWordTrendPeriod
+
+class RelatedTopic(DjangoObjectType):
+    class Meta:
+        model = GoogleTopic
 
 class YouTubeTrendType(DjangoObjectType):
     class Meta:
@@ -109,6 +113,31 @@ class Query(ObjectType):
                 load_google_word_trend(word, country_name, period_type)
 
             return GoogleWordTrendPeriod.objects.filter(word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)         
+
+        return []
+
+    word_related_topics = graphene.List(RelatedTopic, word=graphene.String(), country=graphene.String(), period_type=graphene.String(), topics_number=graphene.Int())
+
+    def resolve_word_related_topics(self, info, **kwargs):
+
+        word, period_type, country_name, filtered_country = setup_words(kwargs)
+        topics_number = kwargs.get('topics_number', 10)
+
+        if filtered_country.exists():
+
+            if GoogleRelatedTopic.objects.filter(country__name=country_name, word=word, period_type=period_type).exists():
+
+                google_related_topics = GoogleRelatedTopic.objects.get(country__name=country_name, word=word, period_type=period_type)
+
+                cond_1 = remove_cache(google_related_topics)
+
+                if cond_1:
+                    load_related_topics(word, country_name, period_type)
+
+            else:
+                load_related_topics(word, country_name, period_type)
+
+            return GoogleTopic.objects.filter(main_topic__word=word, main_topic__period_type=period_type, main_topic__country__name=country_name)[:topics_number]
 
         return []
 

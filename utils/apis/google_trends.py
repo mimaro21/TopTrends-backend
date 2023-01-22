@@ -1,7 +1,7 @@
 import re
 from pytrends.request import TrendReq
 
-from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrend, GoogleWordTrendPeriod
+from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrend, GoogleWordTrendPeriod, GoogleTopic, GoogleRelatedTopic
 
 # Convert snake_case to Title Case
 
@@ -62,7 +62,9 @@ def load_country_trends(country_name):
             t = GoogleTrend(name=t, country_trend=gct)
             t.save()
 
-def load_google_word_trend(word, country_name, period_type):
+def get_period(period_type):
+
+    period = None
 
     if period_type == 'daily':
         period = 'now 1-d'
@@ -70,7 +72,14 @@ def load_google_word_trend(word, country_name, period_type):
         period = 'now 7-d'
     elif period_type == 'monthly':
         period = 'today 1-m'
-    else:
+
+    return period
+
+def load_google_word_trend(word, country_name, period_type):
+
+    period = get_period(period_type)
+
+    if period is None:
         return
 
     country = Country.objects.get(name=country_name)
@@ -89,3 +98,26 @@ def load_google_word_trend(word, country_name, period_type):
         aux_index = index.to_pydatetime()
         gwt_period = GoogleWordTrendPeriod(trend_datetime=aux_index, value=row[word], word_trend=gwt)
         gwt_period.save()
+
+def load_related_topics(word, country_name, period_type):
+
+    period = get_period(period_type)
+
+    if period is None:
+        return
+
+    country = Country.objects.get(name=country_name)
+
+    if GoogleRelatedTopic.objects.filter(word=word, country=country, period_type=period_type).exists():
+        GoogleRelatedTopic.objects.filter(word=word, country=country, period_type=period_type).delete()
+
+    grt = GoogleRelatedTopic(word=word, country=country, period_type=period_type)
+    grt.save()
+
+    pytrends.build_payload(kw_list=[word], cat=0, timeframe=period, geo=country.acronym, gprop='')
+    trends_topics = pytrends.related_topics()
+    top_topics = trends_topics.get(word).get("top")
+
+    for index, row in top_topics.iterrows():
+        gt = GoogleTopic(topic_title=row['topic_title'], topic_type=row['topic_type'], value=row['value'], main_topic=grt)
+        gt.save()
