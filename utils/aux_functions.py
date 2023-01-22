@@ -51,6 +51,17 @@ def setup_countries(kwargs):
 
     return name, trends_number, filtered_country
 
+def setup_words(kwargs):
+
+    load_countries()
+
+    word = kwargs.get('word')
+    period_type = kwargs.get('period_type')
+    country_name = kwargs.get('country')
+    filtered_country = Country.objects.filter(name=country_name)
+    
+    return word, period_type, country_name, filtered_country
+
 def remove_cache(obj):
 
     d1 = obj.insertion_datetime + timedelta(hours=1)

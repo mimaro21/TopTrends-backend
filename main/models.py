@@ -70,6 +70,61 @@ class GoogleCountryTrend(models.Model):
 
     class Meta:
         ordering = ['country']
+        
+class GoogleWordTrendPeriod(models.Model):
+    
+    id = models.AutoField(primary_key=True)
+    trend_datetime = models.DateTimeField()
+    value = models.SmallIntegerField()
+    word_trend = models.ForeignKey('GoogleWordTrend', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.word_trend.country.name + ' - ' + self.word_trend.word + ' - ' + str(self.trend_datetime)
+
+    class Meta:
+        ordering = ['word_trend', 'trend_datetime']
+
+class GoogleWordTrend(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    insertion_datetime = models.DateTimeField(auto_now_add=True)
+    word = models.CharField(max_length=100)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    period_type = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.country.name + ' - ' + self.word
+
+    class Meta:
+        ordering = ['country', 'word']
+
+class GoogleTopic(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    topic_title = models.CharField(max_length=100)
+    topic_type = models.CharField(max_length=100)
+    value = models.SmallIntegerField()
+    main_topic = models.ForeignKey('GoogleRelatedTopic', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.main_topic.word + ' - ' + self.topic_title
+
+    class Meta:
+        ordering = ['main_topic', 'topic_title']
+
+class GoogleRelatedTopic(models.Model):
+    
+    id = models.AutoField(primary_key=True)
+    insertion_datetime = models.DateTimeField(auto_now_add=True)
+    word = models.CharField(max_length=100)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    period_type = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.word
+
+    class Meta:
+        ordering = ['id']
 
 class YouTubeTrend(models.Model):
     
