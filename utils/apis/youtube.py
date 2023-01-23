@@ -38,7 +38,8 @@ def get_country_trends_aux(response, url, res, trends_number):
             published_at = video['snippet']['publishedAt']
             thumbnail = get_thumbnail_url(video)
             channel_title = video['snippet']['channelTitle']
-            aux = [title, published_at, thumbnail, channel_title]
+            views, likes, comments = get_video_staistics(video['id'])
+            aux = [title, published_at, thumbnail, channel_title, views, likes, comments]
             res_aux.append(aux)
 
         if 'nextPageToken' in data.keys():
@@ -69,6 +70,25 @@ def get_thumbnail_url(video):
         return thumbnails['default']['url']
     else:
         return ""
+
+def get_video_staistics(video_id):
+
+    youtube_api_key = config('YOUTUBE_API_KEY')
+
+    url = "https://www.googleapis.com/youtube/v3/videos?part=statistics&id=" + video_id + "&key=" + youtube_api_key
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json()
+        views = data['items'][0]['statistics']['viewCount']
+        likes = data['items'][0]['statistics']['likeCount']
+        comments = data['items'][0]['statistics']['commentCount']
+        try:
+            return int(views), int(likes), int(comments)
+        except:
+            return None, None, None
+    else:
+        return None, None, None
 
 def load_trending_types():
     
@@ -108,5 +128,5 @@ def load_country_trends(country_name, trend_type):
             yct.save()
 
             for t in trends:
-                yt = YouTubeTrend(title=t[0].encode("utf-8"), published_at=datetime.strptime(t[1], "%Y-%m-%dT%H:%M:%SZ"), thumbnail=t[2], channel_title=t[3], country_trend=yct)
+                yt = YouTubeTrend(title=t[0].encode("utf-8"), published_at=datetime.strptime(t[1], "%Y-%m-%dT%H:%M:%SZ"), thumbnail=t[2], channel_title=t[3], view_count=t[4], like_count=t[5], comment_count=t[6], country_trend=yct)
                 yt.save()
