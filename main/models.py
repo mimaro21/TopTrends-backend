@@ -132,6 +132,9 @@ class YouTubeTrend(models.Model):
     title = models.CharField(max_length=200)
     published_at = models.DateTimeField()
     thumbnail = models.URLField(max_length=100)
+    view_count = models.BigIntegerField(null=True)
+    like_count = models.IntegerField(null=True)
+    comment_count = models.IntegerField(null=True)
     channel_title = models.CharField(max_length=100)
     country_trend = models.ForeignKey('YoutubeCountryTrend', on_delete=models.CASCADE)
 
