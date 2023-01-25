@@ -1,5 +1,5 @@
 from django.test import TestCase
-from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend
+from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic
 from datetime import datetime
 import pytz 
 
@@ -444,3 +444,216 @@ class GoogleWordTrendModelTestCase(TestCase):
         self.google_word_trend.delete()
         self.assertEqual(GoogleWordTrend.objects.count(), 0)
         self.assertEqual(GoogleWordTrendPeriod.objects.count(), 0) 
+
+class GoogleTopicModelTestCase(TestCase):
+
+    def setUp(self):
+        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
+        self.google_related_topic = GoogleRelatedTopic.objects.create(word='Word', country=country, period_type='weekly')
+        self.google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value=1, main_topic=self.google_related_topic)
+
+    ########################################
+    ### GoogleTopic model creation tests ###
+    ########################################
+
+    def test_correct_google_topic_model_creation(self):
+
+        self.assertEqual(GoogleTopic.objects.count(), 1)
+        self.assertEqual(self.google_topic.topic_title, 'Topic title')
+        self.assertEqual(self.google_topic.topic_type, 'Topic type')
+        self.assertEqual(self.google_topic.value, 1)
+        self.assertEqual(self.google_topic.main_topic, self.google_related_topic)
+        self.assertTrue(isinstance(self.google_topic, GoogleTopic))
+        self.assertEqual(self.google_topic.__str__(), self.google_topic.main_topic.word + ' - ' + self.google_topic.topic_title)
+
+    # 'topic_title' field
+
+    def test_correct_google_topic_model_creation_max_length_topic_title(self):
+        google_topic = GoogleTopic.objects.create(topic_title='T' * 100, topic_type='Topic type', value=1, main_topic=self.google_related_topic)
+        self.assertEqual(google_topic.topic_title, 'T' * 100)
+
+    def test_incorrect_google_topic_model_creation_without_topic_title(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title=None, topic_type='Topic type', value=1, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_creation_blank_topic_title(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='', topic_type='Topic type', value=1, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_creation_max_length_topic_title(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='T' * 101, topic_type='Topic type', value=1, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    # 'topic_type' field
+
+    def test_correct_google_topic_model_creation_max_length_topic_type(self):
+        google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='T' * 100, value=1, main_topic=self.google_related_topic)
+        self.assertEqual(google_topic.topic_type, 'T' * 100)
+
+    def test_incorrect_google_topic_model_creation_without_topic_type(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type=None, value=1, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_creation_blank_topic_type(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='', value=1, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_creation_max_length_topic_type(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='T' * 101, value=1, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    # 'value' field
+
+    def test_correct_google_topic_model_creation_max_integer_value(self):
+        google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value=32767, main_topic=self.google_related_topic)
+        self.assertEqual(google_topic.value, 32767)
+
+    def test_incorrect_google_topic_model_creation_without_value(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value=None, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_creation_not_integer_value(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value='not_integer', main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_creation_max_integer_value(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value=32768, main_topic=self.google_related_topic)
+            google_topic.full_clean()
+
+    # 'main_topic' field
+
+    def test_incorrect_google_topic_model_creation_without_main_topic(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value=1, main_topic=None)
+            google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_creation_not_main_topic(self):
+        with self.assertRaises(Exception):
+            google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value=1, main_topic='not main topic')
+            google_topic.full_clean()
+
+    ######################################
+    ### GoogleTopic model update tests ###
+    ######################################
+
+    def test_correct_google_topic_model_update(self):
+
+        self.assertEqual(GoogleTopic.objects.count(), 1)
+        self.assertEqual(self.google_topic.topic_title, 'Topic title')
+        self.assertEqual(self.google_topic.topic_type, 'Topic type')
+        self.assertEqual(self.google_topic.value, 1)
+        self.assertEqual(self.google_topic.main_topic, self.google_related_topic)
+
+        country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
+        google_related_topic = GoogleRelatedTopic.objects.create(word='New Word', country=country, period_type='daily')
+
+        self.google_topic.topic_title = 'New Topic title'
+        self.google_topic.topic_type = 'New Topic type'
+        self.google_topic.value = 2
+        self.google_topic.main_topic = google_related_topic
+        self.google_topic.save()
+
+        self.assertEqual(GoogleTopic.objects.count(), 1)
+        self.assertEqual(self.google_topic.topic_title, 'New Topic title')
+        self.assertEqual(self.google_topic.topic_type, 'New Topic type')
+        self.assertEqual(self.google_topic.value, 2)
+        self.assertEqual(self.google_topic.main_topic, google_related_topic)
+
+    # 'topic title' field
+
+    def test_correct_google_topic_model_update_max_length_topic_title(self):
+        self.google_topic.topic_title = 'T' * 100
+        self.google_topic.save()
+        self.assertEqual(self.google_topic.topic_title, 'T' * 100)
+
+    def test_incorrect_google_topic_model_update_without_topic_title(self):
+        with self.assertRaises(Exception):
+            self.google_topic.topic_title = None
+            self.google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_update_blank_topic_title(self):
+        with self.assertRaises(Exception):
+            self.google_topic.topic_title = ''
+            self.google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_update_max_length_topic_title(self):
+        with self.assertRaises(Exception):
+            self.google_topic.topic_title = 'T' * 101
+            self.google_topic.full_clean()
+
+    # 'topic type' field
+
+    def test_correct_google_topic_model_update_max_length_topic_type(self):
+        self.google_topic.topic_type = 'T' * 100
+        self.google_topic.save()
+        self.assertEqual(self.google_topic.topic_type, 'T' * 100)
+
+    def test_incorrect_google_topic_model_update_without_topic_type(self):
+        with self.assertRaises(Exception):
+            self.google_topic.topic_type = None
+            self.google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_update_blank_topic_type(self):
+        with self.assertRaises(Exception):
+            self.google_topic.topic_type = ''
+            self.google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_update_max_length_topic_type(self):
+        with self.assertRaises(Exception):
+            self.google_topic.topic_type = 'T' * 101
+            self.google_topic.full_clean()
+
+    # 'value' field
+
+    def test_correct_google_topic_model_update_max_integer_value(self):
+        self.google_topic.value = 32767
+        self.google_topic.save()
+        self.assertEqual(self.google_topic.value, 32767)
+
+    def test_incorrect_google_topic_model_update_without_value(self):
+        with self.assertRaises(Exception):
+            self.google_topic.value = None
+            self.google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_update_not_integer_value(self):
+        with self.assertRaises(Exception):
+            self.google_topic.value = 'not_integer'
+            self.google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_update_max_integer_value(self):
+        with self.assertRaises(Exception):
+            self.google_topic.value = 32768
+            self.google_topic.full_clean()
+
+    # 'main_topic' field
+
+    def test_incorrect_google_topic_model_update_without_main_topic(self):
+        with self.assertRaises(Exception):
+            self.google_topic.main_topic = None
+            self.google_topic.full_clean()
+
+    def test_incorrect_google_topic_model_update_not_main_topic(self):
+        with self.assertRaises(Exception):
+            self.google_topic.main_topic = 'not main topic'
+            self.google_topic.full_clean()
+
+    ######################################
+    ### GoogleTopic model delete tests ###
+    ######################################
+
+    def test_correct_google_topic_model_delete(self):
+
+        self.assertEqual(GoogleTopic.objects.count(), 1)
+
+        self.google_topic.delete()
+
+        self.assertEqual(GoogleTopic.objects.count(), 0)
