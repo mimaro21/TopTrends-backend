@@ -3,20 +3,18 @@ from main.models import Country, TwitterTrend, TwitterCountryTrend
 
 # Tests from Twitter model
 
-class TwitterModelTest(TestCase):
+class TwitterTrendModelTest(TestCase):
 
     def setUp(self):
         country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
         self.twitter_country_trend = TwitterCountryTrend.objects.create(country=country)
         self.twitter_trend = TwitterTrend.objects.create(name='Trend', url='https://trend.com', tweet_volume=100, country_trend=self.twitter_country_trend)
 
-    ##########################
-    ### TwitterTrend model ###
-    ##########################
+    #########################################
+    ### TwitterTrend model creation tests ###
+    #########################################
 
-    ## Creation tests ##
-
-    def test_twitter_trend_creation(self):
+    def test_correct_twitter_trend_model_creation(self):
         
         self.assertEqual(TwitterTrend.objects.count(), 1)
         self.assertEqual(self.twitter_trend.name, 'Trend')
@@ -83,7 +81,9 @@ class TwitterModelTest(TestCase):
             TwitterTrend.objects.create(name='Trend', url='https://trend.com', tweet_volume=100, country_trend=None)
 
 
-    ## Update tests ##
+    #########################################
+    ### TwitterTrend model creation tests ###
+    #########################################
 
     def test_correct_twitter_trend_model_update(self):
 
@@ -190,3 +190,15 @@ class TwitterModelTest(TestCase):
 
         with self.assertRaises(Exception):
             twitter_trend.full_clean()
+
+    #######################################
+    ### TwitterTrend model delete tests ###
+    #######################################
+
+    def test_correct_twitter_trend_model_delete(self):
+
+        self.assertEqual(TwitterTrend.objects.count(), 1)
+
+        self.twitter_trend.delete()
+
+        self.assertEqual(TwitterTrend.objects.count(), 0)
