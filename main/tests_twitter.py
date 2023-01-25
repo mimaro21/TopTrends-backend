@@ -3,12 +3,14 @@ from main.models import Country, TwitterTrend, TwitterCountryTrend
 
 # Tests from Twitter model
 
+TREND_URL = 'https://trend.com'
+
 class TwitterTrendModelTest(TestCase):
 
     def setUp(self):
         country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
         self.twitter_country_trend = TwitterCountryTrend.objects.create(country=country)
-        self.twitter_trend = TwitterTrend.objects.create(name='Trend', url='https://trend.com', tweet_volume=100, country_trend=self.twitter_country_trend)
+        self.twitter_trend = TwitterTrend.objects.create(name='Trend', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
 
     #########################################
     ### TwitterTrend model creation tests ###
@@ -18,7 +20,7 @@ class TwitterTrendModelTest(TestCase):
         
         self.assertEqual(TwitterTrend.objects.count(), 1)
         self.assertEqual(self.twitter_trend.name, 'Trend')
-        self.assertEqual(self.twitter_trend.url, 'https://trend.com')
+        self.assertEqual(self.twitter_trend.url, TREND_URL)
         self.assertEqual(self.twitter_trend.tweet_volume, 100)
         self.assertTrue(isinstance(self.twitter_trend, TwitterTrend))
         self.assertEqual(self.twitter_trend.__str__(), self.twitter_trend.name)
@@ -26,21 +28,21 @@ class TwitterTrendModelTest(TestCase):
     # 'name' field
 
     def test_correct_twitter_trend_model_creation_max_length_name(self):
-        twitter_trend = TwitterTrend.objects.create(name='TrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrend', url='https://trend.com', tweet_volume=100, country_trend=self.twitter_country_trend)
+        twitter_trend = TwitterTrend.objects.create(name='TrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrend', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
         self.assertEqual(twitter_trend.name, 'TrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrend')
 
     def test_incorrect_twitter_trend_model_creation_without_name(self):
         with self.assertRaises(Exception):
-            TwitterTrend.objects.create(name=None, url='https://trend.com', tweet_volume=100, country_trend=self.twitter_country_trend)
+            TwitterTrend.objects.create(name=None, url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
 
     def test_incorrect_twitter_trend_model_creation_blank_name(self):
         with self.assertRaises(Exception):
-            twitter_trend = TwitterTrend(name='', url='https://trend.com', tweet_volume=100, country_trend=self.twitter_country_trend)
+            twitter_trend = TwitterTrend(name='', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
             twitter_trend.full_clean()
 
     def test_incorrect_twitter_trend_model_creation_max_length_name(self):
         with self.assertRaises(Exception):
-            TwitterTrend.objects.create(name='TrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendT', url='https://trend.com', tweet_volume=100, country_trend=self.twitter_country_trend)
+            TwitterTrend.objects.create(name='TrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendTrendT', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
 
     # 'url' field
 
@@ -71,14 +73,14 @@ class TwitterTrendModelTest(TestCase):
 
     def test_incorrect_twitter_trend_model_creation_not_integer_tweet_volume(self):
         with self.assertRaises(Exception):
-            twitter_trend = TwitterTrend(name='Trend', url='https://trend.com', tweet_volume='not_integer', country_trend=self.twitter_country_trend)
+            twitter_trend = TwitterTrend(name='Trend', url=TREND_URL, tweet_volume='not_integer', country_trend=self.twitter_country_trend)
             twitter_trend.full_clean()
 
     # 'country_trend' field
 
     def test_incorrect_twitter_trend_model_creation_without_country_trend(self):
         with self.assertRaises(Exception):
-            TwitterTrend.objects.create(name='Trend', url='https://trend.com', tweet_volume=100, country_trend=None)
+            TwitterTrend.objects.create(name='Trend', url=TREND_URL, tweet_volume=100, country_trend=None)
 
 
     #########################################
@@ -201,4 +203,68 @@ class TwitterTrendModelTest(TestCase):
 
         self.twitter_trend.delete()
 
+        self.assertEqual(TwitterTrend.objects.count(), 0)
+
+class TwitterCountryTrendModelTestCase(TestCase):
+
+    def setUp(self):
+
+        self.country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
+        self.twitter_country_trend = TwitterCountryTrend.objects.create(country=self.country)
+        self.twitter_trend = TwitterTrend.objects.create(name='Trend', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
+
+        
+    ################################################
+    ### TwitterCountryTrend model creation tests ###
+    ################################################
+
+    def test_correct_twitter_country_trend_model_creation(self):
+
+        self.assertEqual(self.twitter_country_trend.country, self.country)
+        self.assertTrue(isinstance(self.twitter_country_trend, TwitterCountryTrend))
+        self.assertEqual(self.twitter_country_trend.__str__(), self.country.name)
+
+    # 'country' field
+
+    def test_incorrect_twitter_country_trend_model_creation_without_country(self):
+
+        twitter_country_trend = TwitterCountryTrend()
+
+        with self.assertRaises(Exception):
+            twitter_country_trend.full_clean()
+
+    ##############################################
+    ### TwitterCountryTrend model update tests ###
+    ##############################################
+
+    def test_correct_twitter_country_trend_model_update(self):
+
+        twitter_country_trend = self.twitter_country_trend
+        twitter_country_trend.country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
+        twitter_country_trend.save()
+
+        self.assertEqual(twitter_country_trend.country.name, 'Argentina')
+
+    # 'country' field
+
+    def test_incorrect_twitter_country_trend_model_update_without_country(self):
+            
+        twitter_country_trend = self.twitter_country_trend
+        twitter_country_trend.country = None
+
+        with self.assertRaises(Exception):
+            twitter_country_trend.full_clean()
+
+    ##############################################
+    ### TwitterCountryTrend model delete tests ###
+    ##############################################
+
+    def test_correct_twitter_country_trend_model_delete(self):
+
+        self.assertEqual(TwitterCountryTrend.objects.count(), 1)
+        self.assertEqual(TwitterTrend.objects.count(), 1)
+
+        self.twitter_country_trend.delete()
+
+        self.assertEqual(TwitterCountryTrend.objects.count(), 0)
         self.assertEqual(TwitterTrend.objects.count(), 0)
