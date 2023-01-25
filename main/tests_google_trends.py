@@ -288,3 +288,159 @@ class GoogleWordTrendPeriodModelTestCase(TestCase):
         self.assertEqual(GoogleWordTrendPeriod.objects.count(), 1)
         self.google_word_trend_period.delete()
         self.assertEqual(GoogleWordTrendPeriod.objects.count(), 0)
+
+class GoogleWordTrendModelTestCase(TestCase):
+
+    def setUp(self):
+        self.country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
+        self.google_word_trend = GoogleWordTrend.objects.create(word='Word', country=self.country, period_type='weekly')
+        self.google_word_trend_period = GoogleWordTrendPeriod.objects.create(trend_datetime=datetime(2023, 1, 25, 0, 0, 0, 0, pytz.UTC), value=1, word_trend=self.google_word_trend)
+
+    ############################################
+    ### GoogleWordTrend model creation tests ###
+    ############################################
+
+    def test_correct_google_word_trend_model_creation(self):
+
+        self.assertEqual(GoogleWordTrend.objects.count(), 1)
+        self.assertEqual(self.google_word_trend.word, 'Word')
+        self.assertEqual(self.google_word_trend.country, self.country)
+        self.assertEqual(self.google_word_trend.period_type, 'weekly')
+
+    # 'word' field
+
+    def test_correct_google_word_trend_model_creation_max_length_word(self):
+        google_word_trend = GoogleWordTrend.objects.create(word='W' * 100, country=self.country, period_type='weekly')
+        self.assertEqual(google_word_trend.word, 'W' * 100)
+
+    def test_incorrect_google_word_trend_model_creation_without_word(self):
+        with self.assertRaises(Exception):
+            GoogleWordTrend.objects.create(word=None, country=self.country, period_type='weekly')
+
+    def test_incorrect_google_word_trend_model_creation_blank_word(self):
+        with self.assertRaises(Exception):
+            google_word_trend = GoogleWordTrend(word='', country=self.country, period_type='weekly')
+            google_word_trend.full_clean()
+
+    def test_incorrect_google_word_trend_model_creation_max_length_word(self):
+        with self.assertRaises(Exception):
+            GoogleWordTrend.objects.create(word='W' * 101, country=self.country, period_type='weekly')
+
+    # 'country' field
+
+    def test_incorrect_google_word_trend_model_creation_not_country(self):
+        with self.assertRaises(Exception):
+            GoogleWordTrend.objects.create(word='Word', country='not_country', period_type='weekly')
+
+    def test_incorrect_google_word_trend_model_creation_without_country(self):
+        with self.assertRaises(Exception):
+            GoogleWordTrend.objects.create(word='Word', country=None, period_type='weekly')
+
+    # 'period_type' field
+
+    def test_correct_google_word_trend_model_creation_max_length_period_type(self):
+        google_word_trend = GoogleWordTrend.objects.create(word='Word', country=self.country, period_type='P' * 10)
+        self.assertEqual(google_word_trend.period_type, 'P' * 10)
+
+    def test_incorrect_google_word_trend_model_creation_without_period_type(self):
+        with self.assertRaises(Exception):
+            GoogleWordTrend.objects.create(word='Word', country=self.country, period_type=None)
+
+    def test_incorrect_google_word_trend_model_creation_blank_period_type(self):
+        with self.assertRaises(Exception):
+            google_word_trend = GoogleWordTrend(word='Word', country=self.country, period_type='')
+            google_word_trend.full_clean()
+
+    def test_incorrect_google_word_trend_model_creation_max_lenght_period_type(self):
+        with self.assertRaises(Exception):
+            GoogleWordTrend.objects.create(word='Word', country=self.country, period_type='P' * 11)
+
+    ##########################################
+    ### GoogleWordTrend model update tests ###
+    ##########################################
+
+    def test_correct_google_word_trend_model_update(self):
+
+        self.assertEqual(self.google_word_trend.word, 'Word')
+        self.assertEqual(self.google_word_trend.country, self.country)
+        self.assertEqual(self.google_word_trend.period_type, 'weekly')
+
+        self.google_word_trend.word = 'New Word'
+        country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=23424747, pn='argentina')
+        self.google_word_trend.country = country
+        self.google_word_trend.period_type = 'monthly'
+        self.google_word_trend.save()
+
+        self.assertEqual(self.google_word_trend.word, 'New Word')
+        self.assertEqual(self.google_word_trend.country, country)
+        self.assertEqual(self.google_word_trend.period_type, 'monthly')
+
+    # 'word' field
+
+    def test_correct_google_word_trend_model_update_max_length_word(self):
+        self.assertEqual(self.google_word_trend.word, 'Word')
+        self.google_word_trend.word = 'W' * 100
+        self.google_word_trend.save()
+        self.assertEqual(self.google_word_trend.word, 'W' * 100)
+
+    def test_incorrect_google_word_trend_model_update_without_word(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.word = None
+            self.google_word_trend.save()
+
+    def test_incorrect_google_word_trend_model_update_blank_word(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.word = ''
+            self.google_word_trend.full_clean()
+
+    def test_incorrect_google_word_trend_model_update_max_length_word(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.word = 'W' * 101
+            self.google_word_trend.save()
+
+    # 'country' field
+
+    def test_incorrect_google_word_trend_model_update_not_country(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.country = 'not_country'
+            self.google_word_trend.save()
+
+    def test_incorrect_google_word_trend_model_update_without_country(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.country = None
+            self.google_word_trend.save()
+
+    # 'period_type' field
+
+    def test_correct_google_word_trend_model_update_max_length_period_type(self):
+        self.assertEqual(self.google_word_trend.period_type, 'weekly')
+        self.google_word_trend.period_type = 'P' * 10
+        self.google_word_trend.save()
+        self.assertEqual(self.google_word_trend.period_type, 'P' * 10)
+
+    def test_incorrect_google_word_trend_model_update_without_period_type(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.period_type = None
+            self.google_word_trend.save()
+
+    def test_incorrect_google_word_trend_model_update_blank_period_type(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.period_type = ''
+            self.google_word_trend.full_clean()
+
+    def test_incorrect_google_word_trend_model_update_max_length_period_type(self):
+        with self.assertRaises(Exception):
+            self.google_word_trend.period_type = 'P' * 11
+            self.google_word_trend.save()
+
+    ##########################################
+    ### GoogleWordTrend model delete tests ###
+    ##########################################
+
+    def test_correct_google_word_trend_model_delete(self):
+
+        self.assertEqual(GoogleWordTrend.objects.count(), 1)
+        self.assertEqual(GoogleWordTrendPeriod.objects.count(), 1)
+        self.google_word_trend.delete()
+        self.assertEqual(GoogleWordTrend.objects.count(), 0)
+        self.assertEqual(GoogleWordTrendPeriod.objects.count(), 0) 
