@@ -657,3 +657,158 @@ class GoogleTopicModelTestCase(TestCase):
         self.google_topic.delete()
 
         self.assertEqual(GoogleTopic.objects.count(), 0)
+
+class GoogleRelatedTopicModelTest(TestCase):
+
+    def setUp(self):
+        self.country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
+        self.google_related_topic = GoogleRelatedTopic.objects.create(word='Word', country=self.country, period_type='weekly')
+        self.google_topic = GoogleTopic.objects.create(topic_title='Topic title', topic_type='Topic type', value=1, main_topic=self.google_related_topic)
+
+    ###############################################
+    ### GoogleRelatedTopic model creation tests ###
+    ###############################################
+
+    def test_correct_google_related_topic_model_creation(self):
+
+        self.assertEqual(GoogleRelatedTopic.objects.count(), 1)
+        self.assertEqual(self.google_related_topic.word, 'Word')
+        self.assertEqual(self.google_related_topic.country, self.country)
+        self.assertEqual(self.google_related_topic.period_type, 'weekly')
+
+    # 'word' field
+
+    def test_correct_google_related_topic_model_creation_max_length_word(self):
+        google_related_topic = GoogleRelatedTopic.objects.create(word='W' * 100, country=self.country, period_type='weekly')
+        self.assertEqual(google_related_topic.word, 'W' * 100)
+
+    def test_incorrect_google_related_topic_model_creation_without_word(self):
+        with self.assertRaises(Exception):
+            google_related_topic = GoogleRelatedTopic.objects.create(country=self.country, period_type='weekly')
+            google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_creation_blank_word(self):
+        with self.assertRaises(Exception):
+            google_related_topic = GoogleRelatedTopic.objects.create(word='', country=self.country, period_type='weekly')
+            google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_creation_max_length_word(self):
+        with self.assertRaises(Exception):
+            GoogleRelatedTopic.objects.create(word='W' * 101, country=self.country, period_type='weekly')
+
+    # 'country' field
+
+    def test_incorrect_google_related_topic_model_creation_without_country(self):
+        with self.assertRaises(Exception):
+            GoogleRelatedTopic.objects.create(word='Word', country=None, period_type='weekly')
+
+    def test_incorrect_google_related_topic_model_creation_not_country(self):
+        with self.assertRaises(Exception):
+            GoogleRelatedTopic.objects.create(word='Word', country='not country', period_type='weekly')
+
+    # 'period_type' field
+
+    def test_correct_google_related_topic_model_creation_max_length_period_type(self):
+        google_related_topic = GoogleRelatedTopic.objects.create(word='Word', country=self.country, period_type='P' * 10)
+        self.assertEqual(google_related_topic.period_type, 'P' * 10)
+
+    def test_incorrect_google_related_topic_model_creation_without_period_type(self):
+        with self.assertRaises(Exception):
+            GoogleRelatedTopic.objects.create(word='Word', country=self.country, period_type=None)
+
+    def test_incorrect_google_related_topic_model_creation_blank_period_type(self):
+        with self.assertRaises(Exception):
+            GoogleRelatedTopic.objects.create(word='Word', country=self.country, period_type='')
+            google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_creation_max_length_period_type(self):
+        with self.assertRaises(Exception):
+            GoogleRelatedTopic.objects.create(word='Word', country=self.country, period_type='P' * 11)
+
+    #############################################
+    ### GoogleRelatedTopic model update tests ###
+    #############################################
+
+    def test_correct_google_related_topic_model_update(self):
+
+        self.assertEqual(self.google_related_topic.word, 'Word')
+        self.assertEqual(self.google_related_topic.country, self.country)
+        self.assertEqual(self.google_related_topic.period_type, 'weekly')
+
+        self.google_related_topic.word = 'New word'
+        self.google_related_topic.country = self.country
+        self.google_related_topic.period_type = 'monthly'
+        self.google_related_topic.save()
+
+        self.assertEqual(self.google_related_topic.word, 'New word')
+        self.assertEqual(self.google_related_topic.country, self.country)
+        self.assertEqual(self.google_related_topic.period_type, 'monthly')
+
+    # 'word' field
+
+    def test_correct_google_related_topic_model_update_max_length_word(self):
+        self.assertEqual(self.google_related_topic.word, 'Word')
+        self.google_related_topic.word = 'W' * 100
+        self.google_related_topic.save()
+        self.assertEqual(self.google_related_topic.word, 'W' * 100)
+
+    def test_incorrect_google_related_topic_model_update_without_word(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.word = None
+            self.google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_update_blank_word(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.word = ''
+            self.google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_update_max_length_word(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.word = 'W' * 101
+            self.google_related_topic.full_clean()
+
+    # 'country' field
+
+    def test_incorrect_google_related_topic_model_update_without_country(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.country = None
+            self.google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_update_not_country(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.country = 'not country'
+            self.google_related_topic.full_clean()
+
+    # 'period_type' field
+
+    def test_correct_google_related_topic_model_update_max_length_period_type(self):
+        self.assertEqual(self.google_related_topic.period_type, 'weekly')
+        self.google_related_topic.period_type = 'P' * 10
+        self.google_related_topic.save()
+        self.assertEqual(self.google_related_topic.period_type, 'P' * 10)
+
+    def test_incorrect_google_related_topic_model_update_without_period_type(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.period_type = None
+            self.google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_update_blank_period_type(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.period_type = ''
+            self.google_related_topic.full_clean()
+
+    def test_incorrect_google_related_topic_model_update_max_length_period_type(self):
+        with self.assertRaises(Exception):
+            self.google_related_topic.period_type = 'P' * 11
+            self.google_related_topic.full_clean()
+
+    #############################################
+    ### GoogleRelatedTopic model delete tests ###
+    #############################################
+
+    def test_correct_google_related_topic_model_delete(self):
+        self.assertEqual(GoogleRelatedTopic.objects.count(), 1)
+        self.assertEqual(GoogleTopic.objects.count(), 1)
+        self.google_related_topic.delete()
+        self.assertEqual(GoogleRelatedTopic.objects.count(), 0)
+        self.assertEqual(GoogleTopic.objects.count(), 0)
