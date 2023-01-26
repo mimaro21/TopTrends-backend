@@ -837,3 +837,134 @@ class YouTubeTrendModelTest(TestCase):
         self.yt_trend.delete()
 
         self.assertEqual(YouTubeTrend.objects.count(), 0)
+
+class YouTubeCountryTrendModelTest(TestCase):
+
+    def setUp(self):
+
+        self.country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
+        self.yt_trend_type = YouTubeTrendType.objects.create(name='Music', category_id=10)
+        self.yt_country_trend = YouTubeCountryTrend.objects.create(country=self.country, trend_type=self.yt_trend_type)
+        self.yt_trend = YouTubeTrend.objects.create(
+            title='title',
+            published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
+            thumbnail='https://www.youtube.com/',
+            view_count=1000,
+            like_count=100,
+            comment_count=50,
+            channel_title='channel_title',
+            country_trend=self.yt_country_trend
+        )
+
+    ################################################
+    ### YouTubeCountryTrend model creation tests ###
+    ################################################
+
+    def test_correct_yt_country_trend_model_creation(self):
+
+        self.assertEqual(YouTubeCountryTrend.objects.count(), 1)
+        self.assertEqual(self.yt_country_trend.country, self.country)
+        self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
+        self.assertTrue(isinstance(self.yt_country_trend, YouTubeCountryTrend))
+        self.assertEqual(self.yt_country_trend.__str__(), self.yt_country_trend.country.name)
+
+
+    # 'country' field
+
+    def test_incorrect_yt_country_trend_model_creation_without_country(self):
+
+        with self.assertRaises(Exception):
+            yt_country_trend = YouTubeCountryTrend.objects.create(country=None, trend_type=self.yt_trend_type)
+            yt_country_trend.full_clean()
+
+    def test_incorrect_yt_country_trend_model_creation_not_country(self):
+
+        with self.assertRaises(Exception):
+            yt_country_trend = YouTubeCountryTrend.objects.create(country='not_country', trend_type=self.yt_trend_type)
+            yt_country_trend.full_clean()
+
+    # 'trend_type' field
+
+    def test_incorrect_yt_country_trend_model_creation_without_trend_type(self):
+
+        with self.assertRaises(Exception):
+            yt_country_trend = YouTubeCountryTrend.objects.create(country=self.country, trend_type=None)
+            yt_country_trend.full_clean()
+
+    def test_incorrect_yt_country_trend_model_creation_not_trend_type(self):
+            
+        with self.assertRaises(Exception):
+            yt_country_trend = YouTubeCountryTrend.objects.create(country=self.country, trend_type='not_trend_type')
+            yt_country_trend.full_clean()
+
+    ##############################################
+    ### YouTubeCountryTrend model update tests ###
+    ##############################################
+    
+    def test_correct_yt_country_trend_model_update(self):
+        
+        country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
+        yt_trend_type = YouTubeTrendType.objects.create(name='News', category_id=25)
+
+        self.assertEqual(self.yt_country_trend.country, self.country)
+        self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
+
+        self.yt_country_trend.country = country
+        self.yt_country_trend.trend_type = yt_trend_type
+
+        self.yt_country_trend.save()
+        
+        self.assertEqual(self.yt_country_trend.country, country)
+        self.assertEqual(self.yt_country_trend.trend_type, yt_trend_type)
+
+    # 'country' field
+
+    def test_incorrect_yt_country_trend_model_update_without_country(self):
+
+        self.assertEqual(self.yt_country_trend.country, self.country)
+
+        with self.assertRaises(Exception):
+            self.yt_country_trend.country = None
+            self.yt_country_trend.save()
+            self.yt_country_trend.full_clean()
+
+    def test_incorrect_yt_country_trend_model_update_not_country(self):
+
+        self.assertEqual(self.yt_country_trend.country, self.country)
+
+        with self.assertRaises(Exception):
+            self.yt_country_trend.country = 'not_country'
+            self.yt_country_trend.save()
+            self.yt_country_trend.full_clean()
+
+    # 'trend_type' field
+
+    def test_incorrect_yt_country_trend_model_update_without_trend_type(self):
+
+        self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
+
+        with self.assertRaises(Exception):
+            self.yt_country_trend.trend_type = None
+            self.yt_country_trend.save()
+            self.yt_country_trend.full_clean()
+
+    def test_incorrect_yt_country_trend_model_update_not_trend_type(self):
+
+        self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
+
+        with self.assertRaises(Exception):
+            self.yt_country_trend.trend_type = 'not_trend_type'
+            self.yt_country_trend.save()
+            self.yt_country_trend.full_clean()
+
+    ##############################################
+    ### YouTubeCountryTrend model delete tests ###
+    ##############################################
+
+    def test_correct_yt_country_trend_model_delete(self):
+
+        self.assertEqual(YouTubeCountryTrend.objects.count(), 1)
+        self.assertEqual(YouTubeTrend.objects.count(), 1)
+        self.yt_country_trend.delete()
+        self.assertEqual(YouTubeCountryTrend.objects.count(), 0)
+        self.assertEqual(YouTubeTrend.objects.count(), 0)
