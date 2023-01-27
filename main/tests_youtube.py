@@ -5,14 +5,21 @@ import pytz
 
 # Tests of the YouTube models
 
+URL = 'https://www.youtube.com/'
+URL_100_CHARS = 'https://www.' + 't' * 83 + '.com/'
+URL_101_CHARS = 'https://www.' + 't' * 84 + '.com/'
+
+
 class YouTubeTrendTypeTestCase(TestCase):
 
     def setUp(self):
         self.yt_trend_type = YouTubeTrendType.objects.create(name='Music', category_id=10)
 
+
     #############################################
     ### YouTubeTrendType model creation tests ###
     #############################################
+
 
     def test_correct_yt_trend_type_model_creation(self):
 
@@ -22,46 +29,57 @@ class YouTubeTrendTypeTestCase(TestCase):
         self.assertTrue(isinstance(self.yt_trend_type, YouTubeTrendType))
         self.assertEqual(self.yt_trend_type.__str__(), self.yt_trend_type.name)
 
+
     # 'name' field
 
     def test_correct_yt_trend_type_model_max_length_name(self):
+        
         yt_trend_type = YouTubeTrendType.objects.create(name='N' * 100, category_id=10)
         self.assertEqual(yt_trend_type.name, 'N'*100)
 
     def test_incorrect_yt_trend_type_model_without_name(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrendType.objects.create(name=None, category_id=10)
 
     def test_incorrect_yt_trend_type_model_blank_name(self):
+        
         with self.assertRaises(Exception):
             yt_trend_type = YouTubeTrendType.objects.create(name='', category_id=10)
             yt_trend_type.full_clean()
 
     def test_incorrect_yt_trend_type_model_max_length_name(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrendType.objects.create(name='N' * 101, category_id=10)
 
     # 'category_id' field
 
     def test_correct_yt_trend_type_model_max_integer_category_id(self):
+        
         yt_trend_type = YouTubeTrendType.objects.create(name='Music', category_id=32767)
         self.assertEqual(yt_trend_type.category_id, 32767)
 
     def test_incorrect_yt_trend_type_model_without_category_id(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrendType.objects.create(name='Music', category_id=None)
 
-    def test_incorrect_yt_trend_type_model_not_integer_category_id(self):
+    def test_incorrect_yt_trend_type_model_invalid_integer_category_id(self):
+        
         with self.assertRaises(Exception):
-            YouTubeTrendType.objects.create(name='Music', category_id='not_integer')
+            YouTubeTrendType.objects.create(name='Music', category_id='invalid_integer')
 
     def test_incorrect_yt_trend_type_model_max_integer_category_id(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrendType.objects.create(name='Music', category_id=32768)
+
 
     ###########################################
     ### YouTubeTrendType model update tests ###
     ###########################################
+
 
     def test_correct_yt_trend_type_model_update(self):
 
@@ -80,66 +98,93 @@ class YouTubeTrendTypeTestCase(TestCase):
     # 'name' field
 
     def test_correct_yt_trend_type_model_update_max_length_name(self):
+        
+        self.assertEqual(self.yt_trend_type.name, 'Music')
         self.yt_trend_type.name = 'N' * 100
         self.yt_trend_type.save()
         self.assertEqual(self.yt_trend_type.name, 'N'*100)
 
     def test_incorrect_yt_trend_type_model_update_without_name(self):
-        self.yt_trend_type.name = None
+        
+        self.assertEqual(self.yt_trend_type.name, 'Music')
+
         with self.assertRaises(Exception):
-            self.yt_trend_type.full_clean()
+            self.yt_trend_type.name = None
+            self.yt_trend_type.save()
 
     def test_incorrect_yt_trend_type_model_update_blank_name(self):
-        self.yt_trend_type.name = ''
+        
+        self.assertEqual(self.yt_trend_type.name, 'Music')
+
         with self.assertRaises(Exception):
+            self.yt_trend_type.name = ''
             self.yt_trend_type.full_clean()
 
     def test_incorrect_yt_trend_type_model_update_max_length_name(self):
-        self.yt_trend_type.name = 'N' * 101
+        
+        self.assertEqual(self.yt_trend_type.name, 'Music')
+
         with self.assertRaises(Exception):
-            self.yt_trend_type.full_clean()
+            self.yt_trend_type.name = 'N' * 101
+            self.yt_trend_type.save()
 
     # 'category_id' field
 
     def test_correct_yt_trend_type_model_update_max_integer_category_id(self):
+        
+        self.assertEqual(self.yt_trend_type.category_id, 10)
         self.yt_trend_type.category_id = 32767
         self.yt_trend_type.save()
         self.assertEqual(self.yt_trend_type.category_id, 32767)
 
     def test_incorrect_yt_trend_type_model_update_without_category_id(self):
-        self.yt_trend_type.category_id = None
-        with self.assertRaises(Exception):
-            self.yt_trend_type.full_clean()
 
-    def test_incorrect_yt_trend_type_model_update_not_integer_category_id(self):
-        self.yt_trend_type.category_id = 'not_integer'
+        self.assertEqual(self.yt_trend_type.category_id, 10)
+        
         with self.assertRaises(Exception):
-            self.yt_trend_type.full_clean()
+            self.yt_trend_type.category_id = None
+            self.yt_trend_type.save()
+
+    def test_incorrect_yt_trend_type_model_update_invalid_integer_category_id(self):
+        
+        self.assertEqual(self.yt_trend_type.category_id, 10)
+
+        with self.assertRaises(Exception):
+            self.yt_trend_type.category_id = 'invalid_integer'
+            self.yt_trend_type.save()
 
     def test_incorrect_yt_trend_type_model_update_max_integer_category_id(self):
-        self.yt_trend_type.category_id = 32768
+        
+        self.assertEqual(self.yt_trend_type.category_id, 10)
+
         with self.assertRaises(Exception):
-            self.yt_trend_type.full_clean()
+            self.yt_trend_type.category_id = 32768
+            self.yt_trend_type.save()
+
 
     ###########################################
     ### YouTubeTrendType model delete tests ###
     ###########################################
 
+
     def test_correct_yt_trend_type_model_delete(self):
+
         self.assertEqual(YouTubeTrendType.objects.count(), 1)
         self.yt_trend_type.delete()
         self.assertEqual(YouTubeTrendType.objects.count(), 0)
     
+
 class YouTubeTrendModelTest(TestCase):
 
     def setUp(self):
+
         country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/br.svg', woeid=455189, pn='brazil')
         yt_trend_type = YouTubeTrendType.objects.create(name='Music', category_id=10)
         self.yt_country_trend = YouTubeCountryTrend.objects.create(country=country, trend_type=yt_trend_type)
         self.yt_trend = YouTubeTrend.objects.create(
             title='title',
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.youtube.com/',
+            thumbnail=URL,
             view_count=1000,
             like_count=100,
             comment_count=50,
@@ -147,16 +192,18 @@ class YouTubeTrendModelTest(TestCase):
             country_trend=self.yt_country_trend
         )
 
+
     #########################################
     ### YouTubeTrend model creation tests ###
     #########################################
+
 
     def test_correct_yt_trend_model_create(self):
 
         self.assertEqual(YouTubeTrend.objects.count(), 1)
         self.assertEqual(self.yt_trend.title, 'title')
         self.assertEqual(self.yt_trend.published_at, datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC))
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.youtube.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL)
         self.assertEqual(self.yt_trend.view_count, 1000)
         self.assertEqual(self.yt_trend.like_count, 100)
         self.assertEqual(self.yt_trend.comment_count, 50)
@@ -165,13 +212,15 @@ class YouTubeTrendModelTest(TestCase):
         self.assertTrue(isinstance(self.yt_trend, YouTubeTrend))
         self.assertEqual(self.yt_trend.__str__(), self.yt_trend.title)
 
+
     # 'title' field
 
     def test_correct_yt_trend_model_create_max_length_title(self):
+
         yt_trend = YouTubeTrend.objects.create(
             title='T' * 200,
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.youtube.com/',
+            thumbnail=URL,
             view_count=1000,
             like_count=100,
             comment_count=50,
@@ -181,11 +230,12 @@ class YouTubeTrendModelTest(TestCase):
         self.assertEqual(yt_trend.title, 'T'*200)
 
     def test_incorrect_yt_trend_model_create_without_title(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title=None,
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -194,11 +244,12 @@ class YouTubeTrendModelTest(TestCase):
             )
 
     def test_incorrect_yt_trend_model_create_blank_title(self):
+        
         with self.assertRaises(Exception):
             yt_trend = YouTubeTrend.objects.create(
                 title='',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -208,11 +259,12 @@ class YouTubeTrendModelTest(TestCase):
             yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_create_max_length_title(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='T'*201,
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -223,11 +275,12 @@ class YouTubeTrendModelTest(TestCase):
     # 'published_at' field
 
     def test_incorrect_yt_trend_model_creation_without_published_at(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=None,
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -235,12 +288,13 @@ class YouTubeTrendModelTest(TestCase):
                 country_trend=self.yt_country_trend
             )
         
-    def test_incorrect_yt_trend_model_creation_not_datetime_published_at(self):
+    def test_incorrect_yt_trend_model_creation_invalid_datetime_published_at(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
-                published_at='not_datetime',
-                thumbnail='https://www.youtube.com/',
+                published_at='invalid_datetime',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -251,19 +305,21 @@ class YouTubeTrendModelTest(TestCase):
     # 'thumbnail' field
 
     def test_correct_yt_trend_model_creation_max_length_thumbnail(self):
+        
         yt_trend = YouTubeTrend.objects.create(
             title='title',
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.'+ 't'*83 +'.com/',
+            thumbnail=URL_100_CHARS,
             view_count=1000,
             like_count=100,
             comment_count=50,
             channel_title='channel_title',
             country_trend=self.yt_country_trend
         )
-        self.assertEqual(yt_trend.thumbnail, 'https://www.'+ 't'*83 +'.com/')
+        self.assertEqual(yt_trend.thumbnail, URL_100_CHARS)
 
     def test_incorrect_yt_trend_model_creation_without_thumbnail(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
@@ -277,6 +333,7 @@ class YouTubeTrendModelTest(TestCase):
             )
 
     def test_incorrect_yt_trend_model_creation_blank_thumbnail(self):
+        
         with self.assertRaises(Exception):
             yt_trend = YouTubeTrend.objects.create(
                 title='title',
@@ -290,12 +347,13 @@ class YouTubeTrendModelTest(TestCase):
             )
             yt_trend.full_clean()
 
-    def test_incorrect_yt_trend_model_creation_not_url_thumbnail(self):
+    def test_incorrect_yt_trend_model_creation_invalid_url_thumbnail(self):
+        
         with self.assertRaises(Exception):
             yt_trend = YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='not_url',
+                thumbnail='invalid_url',
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -305,11 +363,12 @@ class YouTubeTrendModelTest(TestCase):
             yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_creation_max_length_thumbnail(self):
+        
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.'+ 't'*84 +'.com/',
+                thumbnail=URL_101_CHARS,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -324,7 +383,7 @@ class YouTubeTrendModelTest(TestCase):
         yt_trend = YouTubeTrend.objects.create(
             title='title',
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.youtube.com/',
+            thumbnail=URL,
             view_count=9223372036854775807,
             like_count=100,
             comment_count=50,
@@ -333,14 +392,14 @@ class YouTubeTrendModelTest(TestCase):
         )
         self.assertEqual(yt_trend.view_count, 9223372036854775807)
 
-    def test_incorrect_yt_trend_model_creation_not_integer_view_count(self):
+    def test_incorrect_yt_trend_model_creation_invalid_integer_view_count(self):
 
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
-                view_count='not_integer',
+                thumbnail=URL,
+                view_count='invalid_integer',
                 like_count=100,
                 comment_count=50,
                 channel_title='channel_title',
@@ -353,7 +412,7 @@ class YouTubeTrendModelTest(TestCase):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=9223372036854775808,
                 like_count=100,
                 comment_count=50,
@@ -368,7 +427,7 @@ class YouTubeTrendModelTest(TestCase):
         yt_trend = YouTubeTrend.objects.create(
             title='title',
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.youtube.com/',
+            thumbnail=URL,
             view_count=1000,
             like_count=2147483647,
             comment_count=50,
@@ -377,15 +436,15 @@ class YouTubeTrendModelTest(TestCase):
         )
         self.assertEqual(yt_trend.like_count, 2147483647)
 
-    def test_incorrect_yt_trend_model_creation_not_integer_like_count(self):
+    def test_incorrect_yt_trend_model_creation_invalid_integer_like_count(self):
 
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
-                like_count='not_integer',
+                like_count='invalid_integer',
                 comment_count=50,
                 channel_title='channel_title',
                 country_trend=self.yt_country_trend
@@ -397,7 +456,7 @@ class YouTubeTrendModelTest(TestCase):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=2147483648,
                 comment_count=50,
@@ -412,7 +471,7 @@ class YouTubeTrendModelTest(TestCase):
         yt_trend = YouTubeTrend.objects.create(
             title='title',
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.youtube.com/',
+            thumbnail=URL,
             view_count=1000,
             like_count=100,
             comment_count=2147483647,
@@ -421,16 +480,16 @@ class YouTubeTrendModelTest(TestCase):
         )
         self.assertEqual(yt_trend.comment_count, 2147483647)
 
-    def test_incorrect_yt_trend_model_creation_not_integer_comment_count(self):
+    def test_incorrect_yt_trend_model_creation_invalid_integer_comment_count(self):
 
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
-                comment_count='not_integer',
+                comment_count='invalid_integer',
                 channel_title='channel_title',
                 country_trend=self.yt_country_trend
             )
@@ -441,7 +500,7 @@ class YouTubeTrendModelTest(TestCase):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=2147483648,
@@ -456,7 +515,7 @@ class YouTubeTrendModelTest(TestCase):
         yt_trend = YouTubeTrend.objects.create(
             title='title',
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.youtube.com/',
+            thumbnail=URL,
             view_count=1000,
             like_count=100,
             comment_count=50,
@@ -471,7 +530,7 @@ class YouTubeTrendModelTest(TestCase):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -485,7 +544,7 @@ class YouTubeTrendModelTest(TestCase):
             yt_trend = YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -500,7 +559,7 @@ class YouTubeTrendModelTest(TestCase):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -516,7 +575,7 @@ class YouTubeTrendModelTest(TestCase):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
@@ -524,38 +583,40 @@ class YouTubeTrendModelTest(TestCase):
                 country_trend=None
             )
 
-    def test_incorrect_yt_trend_model_creation_not_country_trend(self):
+    def test_incorrect_yt_trend_model_creation_invalid_country_trend(self):
 
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
                 title='title',
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-                thumbnail='https://www.youtube.com/',
+                thumbnail=URL,
                 view_count=1000,
                 like_count=100,
                 comment_count=50,
                 channel_title='channel_title',
-                country_trend='not_country_trend'
+                country_trend='invalid_country_trend'
             )
+
 
     #######################################
     ### YouTubeTrend model update tests ###
     #######################################
 
-    def test_correct_yt_trend_model_update(self):
 
-        country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
-        yt_trend_type = YouTubeTrendType.objects.create(name='Sports', category_id=17) 
-        yt_country_trend = YouTubeCountryTrend.objects.create(country=country, trend_type=yt_trend_type)
+    def test_correct_yt_trend_model_update(self):
 
         self.assertEqual(self.yt_trend.title, 'title')
         self.assertEqual(self.yt_trend.published_at, datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC))
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.youtube.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL)
         self.assertEqual(self.yt_trend.view_count, 1000)
         self.assertEqual(self.yt_trend.like_count, 100)
         self.assertEqual(self.yt_trend.comment_count, 50)
         self.assertEqual(self.yt_trend.channel_title, 'channel_title')
         self.assertEqual(self.yt_trend.country_trend, self.yt_country_trend)
+
+        country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
+        yt_trend_type = YouTubeTrendType.objects.create(name='Sports', category_id=17) 
+        yt_country_trend = YouTubeCountryTrend.objects.create(country=country, trend_type=yt_trend_type)
 
         self.yt_trend.title = 'new_title'
         self.yt_trend.published_at = datetime(2019, 1, 2, 0, 0, 0, 0, pytz.UTC)
@@ -594,25 +655,22 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.title = None
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_blank_title(self):
             
-            self.assertEqual(self.yt_trend.title, 'title')
-    
-            with self.assertRaises(Exception):
-                self.yt_trend.title = ''
-                self.yt_trend.save()
-                self.yt_trend.full_clean()
+        self.assertEqual(self.yt_trend.title, 'title')
+
+        with self.assertRaises(Exception):
+            self.yt_trend.title = ''
+            self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_max_length_title(self):
             
-            self.assertEqual(self.yt_trend.title, 'title')
-    
-            with self.assertRaises(Exception):
-                self.yt_trend.title = 'T' * 201
-                self.yt_trend.save()
-                self.yt_trend.full_clean()
+        self.assertEqual(self.yt_trend.title, 'title')
+
+        with self.assertRaises(Exception):
+            self.yt_trend.title = 'T' * 201
+            self.yt_trend.save()
 
     # 'published_at' field
 
@@ -623,63 +681,57 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.published_at = None
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
-    def test_incorrect_yt_trend_model_update_not_datetime_published_at(self):
+    def test_incorrect_yt_trend_model_update_invalid_datetime_published_at(self):
 
         self.assertEqual(self.yt_trend.published_at, datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC))
 
         with self.assertRaises(Exception):
-            self.yt_trend.published_at = 'not_datetime'
+            self.yt_trend.published_at = 'invalid_datetime'
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     # 'thumbnail' field
 
     def test_correct_yt_trend_model_update_max_length_thumbnail(self):
 
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.youtube.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL)
 
-        self.yt_trend.thumbnail = 'https://www.'+ 't'*83 +'.com/'
+        self.yt_trend.thumbnail = URL_100_CHARS
         self.yt_trend.save()
 
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.'+ 't'*83 +'.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL_100_CHARS)
 
     def test_incorrect_yt_trend_model_update_without_thumbnail(self):
 
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.youtube.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL)
 
         with self.assertRaises(Exception):
             self.yt_trend.thumbnail = None
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_blank_thumbnail(self):
 
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.youtube.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL)
 
         with self.assertRaises(Exception):
             self.yt_trend.thumbnail = ''
-            self.yt_trend.save()
             self.yt_trend.full_clean()
 
-    def test_incorrect_yt_trend_model_update_not_url_thumbnail(self):
+    def test_incorrect_yt_trend_model_update_invalid_url_thumbnail(self):
 
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.youtube.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL)
 
         with self.assertRaises(Exception):
-            self.yt_trend.thumbnail = 'not_url'
-            self.yt_trend.save()
+            self.yt_trend.thumbnail = 'invalid_url'
             self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_max_length_thumbnail(self):
 
-        self.assertEqual(self.yt_trend.thumbnail, 'https://www.youtube.com/')
+        self.assertEqual(self.yt_trend.thumbnail, URL)
 
         with self.assertRaises(Exception):
-            self.yt_trend.thumbnail = 'https://www.'+ 't'*84 +'.com/'
+            self.yt_trend.thumbnail = URL_101_CHARS
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     # 'view_count' field
 
@@ -692,14 +744,13 @@ class YouTubeTrendModelTest(TestCase):
 
         self.assertEqual(self.yt_trend.view_count, 9223372036854775807)
 
-    def test_incorrect_yt_trend_model_update_not_integer_view_count(self):
+    def test_incorrect_yt_trend_model_update_invalid_integer_view_count(self):
 
         self.assertEqual(self.yt_trend.view_count, 1000)
 
         with self.assertRaises(Exception):
-            self.yt_trend.view_count = 'not_integer'
+            self.yt_trend.view_count = 'invalid_integer'
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_max_value_view_count(self):
 
@@ -708,7 +759,6 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.view_count = 9223372036854775808
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     # 'like_count' field
 
@@ -721,14 +771,13 @@ class YouTubeTrendModelTest(TestCase):
 
         self.assertEqual(self.yt_trend.like_count, 2147483647)
 
-    def test_incorrect_yt_trend_model_update_not_integer_like_count(self):
+    def test_incorrect_yt_trend_model_update_invalid_integer_like_count(self):
 
         self.assertEqual(self.yt_trend.like_count, 100)
 
         with self.assertRaises(Exception):
-            self.yt_trend.like_count = 'not_integer'
+            self.yt_trend.like_count = 'invalid_integer'
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_max_value_like_count(self):
 
@@ -737,7 +786,6 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.like_count = 2147483648
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     # 'comment_count' field
 
@@ -750,14 +798,13 @@ class YouTubeTrendModelTest(TestCase):
 
         self.assertEqual(self.yt_trend.comment_count, 2147483647)
 
-    def test_incorrect_yt_trend_model_update_not_integer_comment_count(self):
+    def test_incorrect_yt_trend_model_update_invalid_integer_comment_count(self):
 
         self.assertEqual(self.yt_trend.comment_count, 50)
 
         with self.assertRaises(Exception):
-            self.yt_trend.comment_count = 'not_integer'
+            self.yt_trend.comment_count = 'invalid_integer'
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_max_value_comment_count(self):
 
@@ -766,7 +813,6 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.comment_count = 2147483648
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     # 'channel_title' field
 
@@ -786,7 +832,6 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.channel_title = None
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_blank_channel_title(self):
 
@@ -794,7 +839,6 @@ class YouTubeTrendModelTest(TestCase):
 
         with self.assertRaises(Exception):
             self.yt_trend.channel_title = ''
-            self.yt_trend.save()
             self.yt_trend.full_clean()
 
     def test_incorrect_yt_trend_model_update_max_length_channel_title(self):
@@ -804,7 +848,6 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.channel_title = 'C'*101
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
     # 'country_trend' field
 
@@ -815,28 +858,27 @@ class YouTubeTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_trend.country_trend = None
             self.yt_trend.save()
-            self.yt_trend.full_clean()
 
-    def test_incorrect_yt_trend_model_update_not_country_trend(self):
+    def test_incorrect_yt_trend_model_update_invalid_country_trend(self):
 
         self.assertEqual(self.yt_trend.country_trend, self.yt_country_trend)
 
         with self.assertRaises(Exception):
-            self.yt_trend.country_trend = 'not_country'
+            self.yt_trend.country_trend = 'invalid_country'
             self.yt_trend.save()
-            self.yt_trend.full_clean()
+
 
     #######################################
     ### YouTubeTrend Model delete tests ###
     #######################################
 
+
     def test_correct_yt_trend_model_delete(self):
 
         self.assertEqual(YouTubeTrend.objects.count(), 1)
-
         self.yt_trend.delete()
-
         self.assertEqual(YouTubeTrend.objects.count(), 0)
+
 
 class YouTubeCountryTrendModelTest(TestCase):
 
@@ -848,7 +890,7 @@ class YouTubeCountryTrendModelTest(TestCase):
         self.yt_trend = YouTubeTrend.objects.create(
             title='title',
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
-            thumbnail='https://www.youtube.com/',
+            thumbnail=URL,
             view_count=1000,
             like_count=100,
             comment_count=50,
@@ -856,9 +898,11 @@ class YouTubeCountryTrendModelTest(TestCase):
             country_trend=self.yt_country_trend
         )
 
+
     ################################################
     ### YouTubeCountryTrend model creation tests ###
     ################################################
+
 
     def test_correct_yt_country_trend_model_creation(self):
 
@@ -874,14 +918,12 @@ class YouTubeCountryTrendModelTest(TestCase):
     def test_incorrect_yt_country_trend_model_creation_without_country(self):
 
         with self.assertRaises(Exception):
-            yt_country_trend = YouTubeCountryTrend.objects.create(country=None, trend_type=self.yt_trend_type)
-            yt_country_trend.full_clean()
+            YouTubeCountryTrend.objects.create(country=None, trend_type=self.yt_trend_type)
 
-    def test_incorrect_yt_country_trend_model_creation_not_country(self):
+    def test_incorrect_yt_country_trend_model_creation_invalid_country(self):
 
         with self.assertRaises(Exception):
-            yt_country_trend = YouTubeCountryTrend.objects.create(country='not_country', trend_type=self.yt_trend_type)
-            yt_country_trend.full_clean()
+            YouTubeCountryTrend.objects.create(country='invalid_country', trend_type=self.yt_trend_type)
 
     # 'trend_type' field
 
@@ -891,23 +933,24 @@ class YouTubeCountryTrendModelTest(TestCase):
             yt_country_trend = YouTubeCountryTrend.objects.create(country=self.country, trend_type=None)
             yt_country_trend.full_clean()
 
-    def test_incorrect_yt_country_trend_model_creation_not_trend_type(self):
+    def test_incorrect_yt_country_trend_model_creation_invalid_trend_type(self):
             
         with self.assertRaises(Exception):
-            yt_country_trend = YouTubeCountryTrend.objects.create(country=self.country, trend_type='not_trend_type')
-            yt_country_trend.full_clean()
+            YouTubeCountryTrend.objects.create(country=self.country, trend_type='invalid_trend_type')
+
 
     ##############################################
     ### YouTubeCountryTrend model update tests ###
     ##############################################
-    
+
+
     def test_correct_yt_country_trend_model_update(self):
         
-        country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
-        yt_trend_type = YouTubeTrendType.objects.create(name='News', category_id=25)
-
         self.assertEqual(self.yt_country_trend.country, self.country)
         self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
+
+        country = Country.objects.create(name='Argentina', native_name='Argentina', acronym='AR', flag='https://flagcdn.com/ar.svg', woeid=332471, pn='argentina')
+        yt_trend_type = YouTubeTrendType.objects.create(name='News', category_id=25)
 
         self.yt_country_trend.country = country
         self.yt_country_trend.trend_type = yt_trend_type
@@ -916,6 +959,7 @@ class YouTubeCountryTrendModelTest(TestCase):
         
         self.assertEqual(self.yt_country_trend.country, country)
         self.assertEqual(self.yt_country_trend.trend_type, yt_trend_type)
+
 
     # 'country' field
 
@@ -926,16 +970,14 @@ class YouTubeCountryTrendModelTest(TestCase):
         with self.assertRaises(Exception):
             self.yt_country_trend.country = None
             self.yt_country_trend.save()
-            self.yt_country_trend.full_clean()
 
-    def test_incorrect_yt_country_trend_model_update_not_country(self):
+    def test_incorrect_yt_country_trend_model_update_invalid_country(self):
 
         self.assertEqual(self.yt_country_trend.country, self.country)
 
         with self.assertRaises(Exception):
-            self.yt_country_trend.country = 'not_country'
+            self.yt_country_trend.country = 'invalid_country'
             self.yt_country_trend.save()
-            self.yt_country_trend.full_clean()
 
     # 'trend_type' field
 
@@ -945,21 +987,21 @@ class YouTubeCountryTrendModelTest(TestCase):
 
         with self.assertRaises(Exception):
             self.yt_country_trend.trend_type = None
-            self.yt_country_trend.save()
             self.yt_country_trend.full_clean()
 
-    def test_incorrect_yt_country_trend_model_update_not_trend_type(self):
+    def test_incorrect_yt_country_trend_model_update_invalid_trend_type(self):
 
         self.assertEqual(self.yt_country_trend.trend_type, self.yt_trend_type)
 
         with self.assertRaises(Exception):
-            self.yt_country_trend.trend_type = 'not_trend_type'
+            self.yt_country_trend.trend_type = 'invalid_trend_type'
             self.yt_country_trend.save()
-            self.yt_country_trend.full_clean()
+
 
     ##############################################
     ### YouTubeCountryTrend model delete tests ###
     ##############################################
+
 
     def test_correct_yt_country_trend_model_delete(self):
 

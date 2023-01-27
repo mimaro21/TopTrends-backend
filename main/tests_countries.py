@@ -1,356 +1,399 @@
 from django.test import TestCase
-from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend
+from main.models import Country
+
+# Tests of the Country model
 
 FLAG_URL = 'https://flagcdn.com/br.svg'
-
-# Tests from Country model
 
 class CountryModelTest(TestCase):
 
     def setUp(self):
 
-        Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
+        self.country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
     
+
     ####################################
     ### Country model creation tests ###
     ####################################
     
-    def test_correct_country_model_creation(self):
 
-        country = Country.objects.get(woeid=455189)
-        self.assertIsNotNone(country)
+    def test_correct_country_model_creation(self):
         
         self.assertEqual(Country.objects.count(), 1)
-        self.assertEqual(country.name, 'Brazil')
-        self.assertEqual(country.native_name, 'Brasil')
-        self.assertEqual(country.acronym, 'BR')
-        self.assertEqual(country.flag, FLAG_URL)
-        self.assertEqual(country.woeid, 455189)
-        self.assertEqual(country.pn, 'brazil')
+        self.assertEqual(self.country.name, 'Brazil')
+        self.assertEqual(self.country.native_name, 'Brasil')
+        self.assertEqual(self.country.acronym, 'BR')
+        self.assertEqual(self.country.flag, FLAG_URL)
+        self.assertEqual(self.country.woeid, 455189)
+        self.assertEqual(self.country.pn, 'brazil')
+        self.assertTrue(isinstance(self.country, Country))
+        self.assertEqual(self.country.__str__(), self.country.name)
+
 
     # 'name' field
 
     def test_correct_country_model_creation_max_length_name(self):
-        country = Country.objects.create(name='BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        self.assertEqual(country.name, 'BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazil')
+
+        country = Country.objects.create(name='B'*60, native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
+        self.assertEqual(country.name, 'B'*60)
 
     def test_incorrect_country_model_creation_without_name(self):
+        
         with self.assertRaises(Exception):
             Country.objects.create(name=None, native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
 
     def test_incorrect_country_model_creation_blank_name(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
+            country = Country.objects.create(name='', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
             country.full_clean()
 
     def test_incorrect_country_model_creation_max_length_name(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilB', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-            country.full_clean()
+            Country.objects.create(name='B'*61, native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
 
     # 'native_name' field
 
     def test_correct_country_model_creation_max_length_native_name(self):
-        country = Country.objects.create(name='Brazil', native_name='BrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        self.assertEqual(country.native_name, 'BrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasil')
+        
+        country = Country.objects.create(name='Brazil', native_name='B'*60, acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
+        self.assertEqual(country.native_name, 'B'*60)
 
     def test_incorrect_country_model_creation_without_native_name(self):
+        
         with self.assertRaises(Exception):
             Country.objects.create(name='Brazil', native_name=None, acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
 
     def test_incorrect_country_model_creation_blank_native_name(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
+            country = Country.objects.create(name='Brazil', native_name='', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
             country.full_clean()
 
     def test_incorrect_country_model_creation_max_length_native_name(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='BrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasilBrasilB', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-            country.full_clean()
+            Country.objects.create(name='Brazil', native_name='B'*61, acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
 
     # 'acronym' field
 
     def test_incorrect_country_model_creation_without_acronym(self):
+        
         with self.assertRaises(Exception):
             Country.objects.create(name='Brazil', native_name='Brasil', acronym=None, flag=FLAG_URL, woeid=455189, pn='brazil')
 
     def test_incorrect_country_model_creation_blank_acronym(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='', flag=FLAG_URL, woeid=455189, pn='brazil')
+            country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='', flag=FLAG_URL, woeid=455189, pn='brazil')
             country.full_clean()
 
     def test_incorrect_country_model_creation_min_length_acronym(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='B', flag=FLAG_URL, woeid=455189, pn='brazil')
+            country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='B', flag=FLAG_URL, woeid=455189, pn='brazil')
             country.full_clean()
-
+            
     def test_incorrect_country_model_creation_max_length_acronym(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='BRA', flag=FLAG_URL, woeid=455189, pn='brazil')
-            country.full_clean()
+            Country.objects.create(name='Brazil', native_name='Brasil', acronym='BRA', flag=FLAG_URL, woeid=455189, pn='brazil')
 
     # 'flag' field
 
     def test_correct_country_model_creation_max_length_flag(self):
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/brbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbr.svg', woeid=455189, pn='brazil')
-        self.assertEqual(country.flag, 'https://flagcdn.com/brbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbr.svg')
+        
+        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/' + 'b' * 76 + '.svg', woeid=455189, pn='brazil')
+        self.assertEqual(country.flag, 'https://flagcdn.com/' + 'b' * 76 + '.svg')
 
     def test_incorrect_country_model_creation_without_flag(self):
+        
         with self.assertRaises(Exception):
             Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=None, woeid=455189, pn='brazil')
     
     def test_incorrect_country_model_creation_blank_flag(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='BR', flag='', woeid=455189, pn='brazil')
+            country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='', woeid=455189, pn='brazil')
             country.full_clean()
 
-    def test_incorrect_country_model_creation_not_url_flag(self):
+    def test_incorrect_country_model_creation_invalid_url_flag(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='BR', flag='flag', woeid=455189, pn='brazil')
+            country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='flag', woeid=455189, pn='brazil')
             country.full_clean()
 
     def test_incorrect_country_model_creation_max_length_flag(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/brbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrb.svg', woeid=455189, pn='brazil')
-            country.full_clean()
+            Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag='https://flagcdn.com/' + 'b' * 77 + '.svg', woeid=455189, pn='brazil')
 
     # 'woeid' field
 
-    def test_incorrect_country_model_creation_not_integer_woeid(self):
+    def test_correct_country_model_creation_max_integer_woeid(self):
+        
+        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=2147483647, pn='brazil')
+        self.assertEqual(country.woeid, 2147483647)
+
+    def test_incorrect_country_model_creation_invalid_integer_woeid(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid='integer', pn='brazil')
-            country.full_clean()
+            Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid='integer', pn='brazil')
+
+    def test_incorrect_country_model_creation_max_integer_woeid(self):
+        
+        with self.assertRaises(Exception):
+            Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=2147483648, pn='brazil')
 
     # 'pn' field
 
     def test_correct_country_model_creation_max_length_pn(self):
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazilbrazilbrazilbrazilbrazil')
-        self.assertEqual(country.pn, 'brazilbrazilbrazilbrazilbrazil')
+        
+        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='b'*30)
+        self.assertEqual(country.pn, 'b'*30)
 
     def test_incorrect_country_model_creation_blank_pn(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='')
+            country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='')
             country.full_clean()
 
     def test_incorrect_country_model_creation_max_length_pn(self):
+        
         with self.assertRaises(Exception):
-            country = Country(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazilbrazilbrazilbrazilbrazilb')
-            country.full_clean()
+            Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='b'*31)
+
 
     ##################################
     ### Country model update tests ###
     ##################################
 
+
     def test_correct_country_model_update(self):
 
-        country = Country.objects.get(woeid=455189)
-        self.assertIsNotNone(country)
+        self.assertEqual(self.country.name, 'Brazil')
+        self.assertEqual(self.country.native_name, 'Brasil')
+        self.assertEqual(self.country.acronym, 'BR')
+        self.assertEqual(self.country.flag, FLAG_URL)
+        self.assertEqual(self.country.woeid, 455189)
+        self.assertEqual(self.country.pn, 'brazil')
                 
-        country.name = 'Brasil Update'
-        country.native_name = 'Brazil Update'
-        country.acronym = 'BU'
-        country.flag = 'https://flagcdn.com/bu.svg'
-        country.woeid = 123456
-        country.pn = 'brazil_update'
-        country.save()
+        self.country.name = 'Brasil Update'
+        self.country.native_name = 'Brazil Update'
+        self.country.acronym = 'BU'
+        self.country.flag = 'https://flagcdn.com/bu.svg'
+        self.country.woeid = 123456
+        self.country.pn = 'brazil_update'
+        self.country.save()
         
-        self.assertEqual(country.name, 'Brasil Update')
-        self.assertEqual(country.native_name, 'Brazil Update')  
-        self.assertEqual(country.acronym, 'BU')
-        self.assertEqual(country.flag, 'https://flagcdn.com/bu.svg')
-        self.assertEqual(country.woeid, 123456)
-        self.assertEqual(country.pn, 'brazil_update')
+        self.assertEqual(self.country.name, 'Brasil Update')
+        self.assertEqual(self.country.native_name, 'Brazil Update')  
+        self.assertEqual(self.country.acronym, 'BU')
+        self.assertEqual(self.country.flag, 'https://flagcdn.com/bu.svg')
+        self.assertEqual(self.country.woeid, 123456)
+        self.assertEqual(self.country.pn, 'brazil_update')
+
 
     # 'name' field
 
     def test_correct_country_model_update_max_length_name(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.name = 'BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazil'
-
-        self.assertEqual(country.name, 'BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazil')
+        self.assertEqual(self.country.name, 'Brazil')
+        self.country.name = 'B'*60
+        self.country.save()
+        self.assertEqual(self.country.name, 'B'*60)
 
     def test_incorrect_country_model_update_without_name(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.name = None
-        
+        self.assertEqual(self.country.name, 'Brazil')
+
         with self.assertRaises(Exception):
-            country.full_clean()   
+            self.country.name = None
+            self.country.save() 
 
     def test_incorrect_country_model_update_blank_name(self):
+
+        self.assertEqual(self.country.name, 'Brazil')
             
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.name = ''
-        
         with self.assertRaises(Exception):
-            country.full_clean() 
+            self.country.name = ''
+            self.country.full_clean() 
 
     def test_incorrect_country_model_update_max_length_name(self):
-
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.name = 'BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilB'
         
+        self.assertEqual(self.country.name, 'Brazil')
+
         with self.assertRaises(Exception):
-            country.full_clean() 
+            self.country.name = 'B'*61
+            self.country.save()           
 
     # 'native_name' field
 
     def test_correct_country_model_update_max_length_native_name(self):
             
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.native_name = 'BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazil'
-        
-        self.assertEqual(country.native_name, 'BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazil')
+        self.assertEqual(self.country.native_name, 'Brasil')
+        self.country.native_name = 'B'*60
+        self.country.save()
+        self.assertEqual(self.country.native_name, 'B'*60)
 
     def test_incorrect_country_model_update_without_native_name(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.native_name = None
-        
+        self.assertEqual(self.country.native_name, 'Brasil')
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.native_name = None
+            self.country.save()
 
     def test_incorrect_country_model_update_blank_native_name(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.native_name = ''
-        
+        self.assertEqual(self.country.native_name, 'Brasil')
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.native_name = ''
+            self.country.full_clean()
 
     def test_incorrect_country_model_update_max_length_native_name(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.native_name = 'BrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilBrazilB'
-        
+        self.assertEqual(self.country.native_name, 'Brasil')
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.native_name = 'B'*61
+            self.country.save()
 
     # 'acronym' field
 
     def test_incorrect_country_model_update_without_acronym(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.acronym = None
-        
+        self.assertEqual(self.country.acronym, 'BR')
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.acronym = None
+            self.country.save()
 
     def test_incorrect_country_model_update_blank_acronym(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.acronym = ''
-        
+        self.assertEqual(self.country.acronym, 'BR')
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.acronym = ''
+            self.country.full_clean()
 
     def test_incorrect_country_model_update_min_length_acronym(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.acronym = 'B'
-        
+        self.assertEqual(self.country.acronym, 'BR')
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.acronym = 'B'
+            self.country.full_clean()
 
     def test_incorrect_country_model_update_max_length_acronym(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.acronym = 'BRA'
-        
+        self.assertEqual(self.country.acronym, 'BR')
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.acronym = 'B'*3
+            self.country.save()
 
     # 'flag' field
 
     def test_correct_country_model_update_max_length_flag(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.flag = 'https://flagcdn.com/brbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbr.svg'
-        
-        self.assertEqual(country.flag, 'https://flagcdn.com/brbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbr.svg')
+        self.assertEqual(self.country.flag, FLAG_URL)
+        self.country.flag = 'https://flagcdn.com/' + 'b'*76 + '.svg'
+        self.country.save()
+        self.assertEqual(self.country.flag, 'https://flagcdn.com/' + 'b'*76 + '.svg')
 
     def test_incorrect_country_model_update_without_flag(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.flag = None
-        
+        self.assertEqual(self.country.flag, FLAG_URL)
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.flag = None
+            self.country.save()
 
     def test_incorrect_country_model_update_blank_flag(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.flag = ''
-        
-        with self.assertRaises(Exception):
-            country.full_clean()
+        self.assertEqual(self.country.flag, FLAG_URL)
 
-    def test_incorrect_country_model_update_not_url_flag(self):
-
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.flag = 'flag'
-        
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.flag = ''
+            self.country.full_clean()
+
+    def test_incorrect_country_model_update_invalid_url_flag(self):
+
+        self.assertEqual(self.country.flag, FLAG_URL)
+
+        with self.assertRaises(Exception):
+            self.country.flag = 'flag'
+            self.country.full_clean()
 
     def test_incorrect_country_model_update_max_length_flag(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.flag = 'https://flagcdn.com/brbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrbrb.svg'
-        
+        self.assertEqual(self.country.flag, FLAG_URL)
+
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.flag = 'https://flagcdn.com/' + 'b'*77 + '.svg'
+            self.country.save()
 
     # 'woeid' field
 
-    def test_incorrect_country_model_update_not_integer_woeid(self):
+    def test_correct_country_model_update_max_integer_woeid(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.woeid = 'integer'
+        self.assertEqual(self.country.woeid, 455189)
+        self.country.woeid = 2147483647
+        self.country.save()
+        self.assertEqual(self.country.woeid, 2147483647)
+
+    def test_incorrect_country_model_update_invalid_integer_woeid(self):
+
+        self.assertEqual(self.country.woeid, 455189)
 
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.woeid = 'invalid_integer'
+            self.country.save()
+
+    def test_incorrect_country_model_update_max_integer_woeid(self):
+
+        self.assertEqual(self.country.woeid, 455189)
+
+        with self.assertRaises(Exception):
+            self.country.woeid = 2147483648
+            self.country.save()
 
     # 'pn' field
 
     def test_correct_country_model_update_max_length_pn(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.pn = 'brazilbrazilbrazilbrazilbrazil'
-
-        self.assertEqual(country.pn, 'brazilbrazilbrazilbrazilbrazil')
+        self.assertEqual(self.country.pn, 'brazil')
+        self.country.pn = 'b'*30
+        self.country.save()
+        self.assertEqual(self.country.pn, 'b'*30)
 
     def test_incorrect_country_model_update_blank_pn(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.pn = ''
+        self.assertEqual(self.country.pn, 'brazil')
 
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.pn = ''
+            self.country.full_clean()
 
     def test_incorrect_country_model_update_max_length_pn(self):
 
-        country = Country.objects.create(name='Brazil', native_name='Brasil', acronym='BR', flag=FLAG_URL, woeid=455189, pn='brazil')
-        country.pn = 'brazilbrazilbrazilbrazilbrazilbrazilb'
+        self.assertEqual(self.country.pn, 'brazil')
 
         with self.assertRaises(Exception):
-            country.full_clean()
+            self.country.pn = 'b'*31
+            self.country.save()
+
 
     ##################################
     ### Country model delete tests ###
     ##################################
 
+
     def test_correct_country_model_delete(self):
                 
         self.assertEqual(Country.objects.count(), 1)
-
-        country = Country.objects.get(woeid=455189)
-
-        self.assertIsNotNone(country)
-
-        country.delete()
-        
+        self.country.delete()
         self.assertEqual(Country.objects.count(), 0)
-
-    
