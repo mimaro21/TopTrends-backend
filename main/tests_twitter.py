@@ -45,7 +45,7 @@ class TwitterTrendModelTest(TestCase):
     def test_incorrect_twitter_trend_model_creation_blank_name(self):
         
         with self.assertRaises(Exception):
-            twitter_trend = TwitterTrend.objects.creat(name='', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
+            twitter_trend = TwitterTrend.objects.create(name='', url=TREND_URL, tweet_volume=100, country_trend=self.twitter_country_trend)
             twitter_trend.full_clean()
 
     def test_incorrect_twitter_trend_model_creation_max_length_name(self):
@@ -260,7 +260,6 @@ class TwitterTrendModelTest(TestCase):
 
         with self.assertRaises(Exception):
             self.twitter_trend.country_trend = 'invalid_country_trend'
-            self.twitter_trend.save()
 
 
     #######################################
@@ -341,7 +340,6 @@ class TwitterCountryTrendModelTestCase(TestCase):
             
         with self.assertRaises(Exception):
             self.twitter_country_trend.country = 'invalid_country'
-            self.twitter_country_trend.save()
 
 
     ##############################################

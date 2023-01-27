@@ -865,7 +865,6 @@ class YouTubeTrendModelTest(TestCase):
 
         with self.assertRaises(Exception):
             self.yt_trend.country_trend = 'invalid_country'
-            self.yt_trend.save()
 
 
     #######################################
@@ -977,7 +976,6 @@ class YouTubeCountryTrendModelTest(TestCase):
 
         with self.assertRaises(Exception):
             self.yt_country_trend.country = 'invalid_country'
-            self.yt_country_trend.save()
 
     # 'trend_type' field
 
@@ -995,7 +993,6 @@ class YouTubeCountryTrendModelTest(TestCase):
 
         with self.assertRaises(Exception):
             self.yt_country_trend.trend_type = 'invalid_trend_type'
-            self.yt_country_trend.save()
 
 
     ##############################################
