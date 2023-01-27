@@ -49,7 +49,7 @@ class GoogleTrendsTestCase(TestCase):
     def test_incorrect_google_trend_model_creation_blank_name(self):
         
         with self.assertRaises(Exception):
-            google_trend = oogleTrend.objects.create(name='', country_trend=self.google_country_trend)
+            google_trend = GoogleTrend.objects.create(name='', country_trend=self.google_country_trend)
             google_trend.full_clean()
 
     def test_incorrect_google_trend_model_creation_max_length_name(self):
@@ -140,7 +140,6 @@ class GoogleTrendsTestCase(TestCase):
 
         with self.assertRaises(Exception):
             self.google_trend.country_trend = 'invalid_country_trend'
-            self.google_trend.save()
 
 
     #######################################
@@ -224,7 +223,6 @@ class GoogleCountryTrendModelTestCase(TestCase):
 
         with self.assertRaises(Exception):
             self.google_country_trend.country = 'invalid_country'
-            self.google_country_trend.save()
 
 
     ##############################################
@@ -395,7 +393,6 @@ class GoogleWordTrendPeriodModelTestCase(TestCase):
 
         with self.assertRaises(Exception):
             self.google_word_trend_period.word_trend = 'invalid_word_trend'
-            self.google_word_trend_period.save()
 
     def test_incorrect_google_word_trend_period_model_update_without_word_trend(self):
 
@@ -438,6 +435,8 @@ class GoogleWordTrendModelTestCase(TestCase):
         self.assertEqual(self.google_word_trend.word, 'Word')
         self.assertEqual(self.google_word_trend.country, self.country)
         self.assertEqual(self.google_word_trend.period_type, 'weekly')
+        self.assertTrue(isinstance(self.google_word_trend, GoogleWordTrend))
+        self.assertEqual(str(self.google_word_trend), self.google_word_trend.country.name + ' - ' + self.google_word_trend.word)
 
 
     # 'word' field
@@ -570,7 +569,6 @@ class GoogleWordTrendModelTestCase(TestCase):
 
         with self.assertRaises(Exception):
             self.google_word_trend.country = 'invalid_country'
-            self.google_word_trend.save()
 
     # 'period_type' field
 
@@ -870,7 +868,6 @@ class GoogleTopicModelTestCase(TestCase):
 
         with self.assertRaises(Exception):
             self.google_topic.main_topic = 'invalid main topic'
-            self.google_topic.save()
 
 
     ######################################
@@ -905,6 +902,8 @@ class GoogleRelatedTopicModelTest(TestCase):
         self.assertEqual(self.google_related_topic.word, 'Word')
         self.assertEqual(self.google_related_topic.country, self.country)
         self.assertEqual(self.google_related_topic.period_type, 'weekly')
+        self.assertTrue(isinstance(self.google_related_topic, GoogleRelatedTopic))
+        self.assertEqual(self.google_related_topic.__str__(), self.google_related_topic.word)
 
 
     # 'word' field
@@ -1036,7 +1035,6 @@ class GoogleRelatedTopicModelTest(TestCase):
 
         with self.assertRaises(Exception):
             self.google_related_topic.country = 'invalid country'
-            self.google_related_topic.save()
 
     # 'period_type' field
 
