@@ -176,3 +176,92 @@ class GoogleTrendsTest(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['countryGoogleTrends']), 0)
+
+class WordGoogleTrendsTest(TestCase):
+
+    def test_correct_country_daily_period(self):
+
+        query = """
+            query{
+                wordGoogleTrends(word:"Mercadona", country:"Spain", periodType:"daily"){
+                    id,
+                    trendDatetime,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+
+        # Make the same query when the result is found in the database
+
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+
+    def test_correct_country_weekly_period(self):
+
+        query = """
+            query{
+                wordGoogleTrends(word:"Mercadona", country:"Spain", periodType:"weekly"){
+                    id,
+                    trendDatetime,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+
+    def test_correct_country_monthly_period(self):
+
+        query = """
+            query{
+                wordGoogleTrends(word:"Mercadona", country:"Spain", periodType:"monthly"){
+                    id,
+                    trendDatetime,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+
+    def test_unknow_country(self):
+
+        query = """
+            query{
+                wordGoogleTrends(word:"Mercadona", country:"Not country", periodType:"daily"){
+                    id,
+                    trendDatetime,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordGoogleTrends']), 0)
+
+    def test_unknow_period_type(self):
+            
+            query = """
+                query{
+                    wordGoogleTrends(word:"Mercadona", country:"Spain", periodType:"Not period type"){
+                        id,
+                        trendDatetime,
+                        value
+                    }
+                }
+            """
+    
+            schema = graphene.Schema(query=Query)
+            result = schema.execute(query)
+            self.assertIsNone(result.errors)
+            self.assertEqual(len(result.data['wordGoogleTrends']), 0)
