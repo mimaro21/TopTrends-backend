@@ -265,3 +265,119 @@ class WordGoogleTrendsTest(TestCase):
             result = schema.execute(query)
             self.assertIsNone(result.errors)
             self.assertEqual(len(result.data['wordGoogleTrends']), 0)
+
+class WordRelatedTopicsTest(TestCase):
+
+    def test_correct_country_daily_period(self):
+
+        query = """
+            {
+                wordRelatedTopics(word:"Mercadona", country:"Spain", periodType:"daily", topicsNumber:5){
+                    id,
+                    topicTitle,
+                    topicType,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordRelatedTopics']), 5)
+
+        # Make the same query when the result is found in the database
+
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordRelatedTopics']), 5)
+
+    def test_correct_country_weekly_period(self):
+
+        query = """
+            {
+                wordRelatedTopics(word:"Mercadona", country:"Spain", periodType:"weekly", topicsNumber:5){
+                    id,
+                    topicTitle,
+                    topicType,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordRelatedTopics']), 5)
+
+    def test_correct_country_monthly_period(self):
+
+        query = """
+            {
+                wordRelatedTopics(word:"Mercadona", country:"Spain", periodType:"monthly", topicsNumber:5){
+                    id,
+                    topicTitle,
+                    topicType,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordRelatedTopics']), 5)
+
+    def test_unknow_country(self):
+
+        query = """
+            {
+                wordRelatedTopics(word:"Mercadona", country:"Not country", periodType:"daily", topicsNumber:5){
+                    id,
+                    topicTitle,
+                    topicType,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordRelatedTopics']), 0)
+
+    def test_unknow_period_type(self):
+
+        query = """
+            {
+                wordRelatedTopics(word:"Mercadona", country:"Spain", periodType:"Not period type", topicsNumber:5){
+                    id,
+                    topicTitle,
+                    topicType,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordRelatedTopics']), 0)
+
+    def test_unknow_topics_number(self):
+
+        query = """
+            {
+                wordRelatedTopics(word:"Mercadona", country:"Spain", periodType:"daily"){
+                    id,
+                    topicTitle,
+                    topicType,
+                    value
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['wordRelatedTopics']), 10)
