@@ -130,7 +130,7 @@ class GoogleRelatedTopic(models.Model):
 class YouTubeTrend(models.Model):
     
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=1000)
     published_at = models.DateTimeField()
     thumbnail = models.URLField(max_length=100)
     view_count = models.BigIntegerField(null=True)
