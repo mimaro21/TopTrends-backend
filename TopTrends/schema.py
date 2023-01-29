@@ -141,9 +141,9 @@ class Query(ObjectType):
 
         return []
 
-    country_youtube_trends = graphene.List(YouTubeTrendType, country=graphene.String(), trend_type=graphene.String(), trends_number=graphene.Int())
+    country_you_tube_trends = graphene.List(YouTubeTrendType, country=graphene.String(), trend_type=graphene.String(), trends_number=graphene.Int())
 
-    def resolve_country_youtube_trends(self, info, **kwargs):
+    def resolve_country_you_tube_trends(self, info, **kwargs):
 
         name, trends_number, filtered_country = setup_countries(kwargs)
         trend_type = kwargs.get('trend_type')

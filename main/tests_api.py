@@ -381,3 +381,275 @@ class WordRelatedTopicsTest(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['wordRelatedTopics']), 10)
+
+class YouTubeTrendsTest(TestCase):
+    
+    def test_correct_country_defined_trends_number_default_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Default", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+
+        # Make the same query when the result is found in the database
+
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+    
+    def test_correct_country_defined_trends_number_film_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Film & Animation", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+    
+    def test_correct_country_defined_trends_number_music_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Music", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+    
+    def test_correct_country_defined_trends_number_sports_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Sports", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+    
+    def test_correct_country_defined_trends_number_gaming_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Gaming", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+
+    def test_correct_country_defined_trends_number_entertainment_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Entertainment", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+
+    def test_correct_country_defined_trends_number_news_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"News & Politics", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+
+    def test_correct_country_defined_trends_number_science_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Science & Technology", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+
+    def test_correct_country_big_trends_number(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Default", trendsNumber:500){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 25)
+
+    def test_correct_country_undefined_trends_number(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Default"){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+
+    def test_unknown_country(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"Not coutry", trendType:"Default", trendsNumber:50){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 0)
+    
+    def test_unknown_trend_type(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"United States of America", trendType:"Not trend type", trendsNumber:5){
+                    id,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 0)
