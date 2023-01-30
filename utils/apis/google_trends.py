@@ -1,5 +1,6 @@
 import re
 from pytrends.request import TrendReq
+from pytz import timezone
 
 from main.models import Country, GoogleTrend, GoogleCountryTrend, GoogleWordTrend, GoogleWordTrendPeriod, GoogleTopic, GoogleRelatedTopic
 
@@ -95,7 +96,7 @@ def load_google_word_trend(word, country_name, period_type):
     interest_over_time = pytrends.interest_over_time()
 
     for index, row in interest_over_time.iterrows():
-        aux_index = index.to_pydatetime()
+        aux_index = timezone("UTC").localize(index.to_pydatetime())
         gwt_period = GoogleWordTrendPeriod(trend_datetime=aux_index, value=row[word], word_trend=gwt)
         gwt_period.save()
 

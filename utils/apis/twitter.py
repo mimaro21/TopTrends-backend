@@ -46,7 +46,7 @@ def get_country_trends(country_name):
         country_trends = api.get_place_trends(woeid)
         country_trends_json = json.dumps(country_trends)
         country_trends_dict = json.loads(country_trends_json)
-        country_trends_list = country_trends_dict[0]['trends']
+        country_trends_list = country_trends_dict[0]['trends'][:25]
 
         res = []
         for t in country_trends_list:

@@ -1,6 +1,7 @@
 import requests
 from decouple import config
 from datetime import datetime
+from pytz import timezone
 
 from main.models import Country, YouTubeTrend, YouTubeTrendType, YouTubeCountryTrend
 
@@ -34,12 +35,12 @@ def get_country_trends_aux(response, url, res, trends_number):
         videos = data['items']
 
         for video in videos:
-            title = video['snippet']['title']
-            published_at = video['snippet']['publishedAt']
-            thumbnail = get_thumbnail_url(video)
-            channel_title = video['snippet']['channelTitle']
-            views, likes, comments = get_video_staistics(video['id'])
-            aux = [title, published_at, thumbnail, channel_title, views, likes, comments]
+            title = video['snippet']['title'] if 'title' in video['snippet'].keys() else ''
+            published_at = video['snippet']['publishedAt'] if 'publishedAt' in video['snippet'].keys() else ''
+            thumbnail = get_thumbnail_url(video) if 'thumbnails' in video['snippet'].keys() else ''
+            channel_title = video['snippet']['channelTitle'] if 'channelTitle' in video['snippet'].keys() else ''
+            statistics = get_video_staistics(video['id']) if 'id' in video.keys() else (None, None, None)
+            aux = [title, published_at, thumbnail, channel_title, statistics]
             res_aux.append(aux)
 
         if 'nextPageToken' in data.keys():
@@ -80,13 +81,19 @@ def get_video_staistics(video_id):
 
     if response.status_code == 200:
         data = response.json()
-        views = data['items'][0]['statistics']['viewCount']
-        likes = data['items'][0]['statistics']['likeCount']
-        comments = data['items'][0]['statistics']['commentCount']
-        try:
-            return int(views), int(likes), int(comments)
-        except:
-            return None, None, None
+        views = data['items'][0]['statistics']['viewCount'] if 'viewCount' in data['items'][0]['statistics'].keys() else None
+        likes = data['items'][0]['statistics']['likeCount'] if 'likeCount' in data['items'][0]['statistics'].keys() else None
+        comments = data['items'][0]['statistics']['commentCount'] if 'commentCount' in data['items'][0]['statistics'].keys() else None
+        
+        if views != None:
+            views = int(views)
+        if likes != None:
+            likes = int(likes)
+        if comments != None:
+            comments = int(comments)
+
+        return views, likes, comments
+
     else:
         return None, None, None
 
@@ -128,5 +135,5 @@ def load_country_trends(country_name, trend_type):
             yct.save()
 
             for t in trends:
-                yt = YouTubeTrend(title=t[0].encode("utf-8"), published_at=datetime.strptime(t[1], "%Y-%m-%dT%H:%M:%SZ"), thumbnail=t[2], channel_title=t[3], view_count=t[4], like_count=t[5], comment_count=t[6], country_trend=yct)
+                yt = YouTubeTrend(title=t[0].encode("utf-8"), published_at=timezone("UTC").localize(datetime.strptime(t[1], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[2], channel_title=t[3], view_count=t[4][0], like_count=t[4][1], comment_count=t[4][2], country_trend=yct)
                 yt.save()
