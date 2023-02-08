@@ -17,7 +17,7 @@ class Country(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ['name', 'id']
         verbose_name_plural = "Countries"
 
 class TwitterTrend(models.Model):
@@ -45,7 +45,7 @@ class TwitterCountryTrend(models.Model):
         return self.country.name
 
     class Meta:
-        ordering = ['country']
+        ordering = ['country', 'id']
 
 class GoogleTrend(models.Model):
 
@@ -70,7 +70,7 @@ class GoogleCountryTrend(models.Model):
         return self.country.name
 
     class Meta:
-        ordering = ['country']
+        ordering = ['country', 'id']
         
 class GoogleWordTrendPeriod(models.Model):
     
@@ -83,7 +83,7 @@ class GoogleWordTrendPeriod(models.Model):
         return self.word_trend.country.name + ' - ' + self.word_trend.word + ' - ' + str(self.trend_datetime)
 
     class Meta:
-        ordering = ['word_trend', 'trend_datetime']
+        ordering = ['-value', 'id']
 
 class GoogleWordTrend(models.Model):
 
@@ -97,7 +97,7 @@ class GoogleWordTrend(models.Model):
         return self.country.name + ' - ' + self.word
 
     class Meta:
-        ordering = ['country', 'word']
+        ordering = ['country', 'word', 'id']
 
 class GoogleTopic(models.Model):
 
@@ -111,7 +111,7 @@ class GoogleTopic(models.Model):
         return self.main_topic.word + ' - ' + self.topic_title
 
     class Meta:
-        ordering = ['main_topic', 'topic_title']
+        ordering = ['-value', 'id']
 
 class GoogleRelatedTopic(models.Model):
     
@@ -168,4 +168,4 @@ class YouTubeCountryTrend(models.Model):
         return self.country.name
 
     class Meta:
-        ordering = ['country']
+        ordering = ['country', 'id']

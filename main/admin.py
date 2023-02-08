@@ -1,5 +1,5 @@
 from django.contrib import admin
-from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend
+from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic, YouTubeTrend, YouTubeCountryTrend 
 
 # Register your models here.
 
@@ -8,3 +8,9 @@ admin.site.register(TwitterTrend)
 admin.site.register(TwitterCountryTrend)
 admin.site.register(GoogleTrend)
 admin.site.register(GoogleCountryTrend)
+admin.site.register(GoogleWordTrendPeriod)
+admin.site.register(GoogleWordTrend)
+admin.site.register(GoogleTopic)
+admin.site.register(GoogleRelatedTopic)
+admin.site.register(YouTubeTrend)
+admin.site.register(YouTubeCountryTrend)
