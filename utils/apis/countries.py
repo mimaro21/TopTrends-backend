@@ -16,7 +16,13 @@ def all_countries():
             native_name = country['nativeName']
             alpha2_code = country['alpha2Code']
             flag = country['flag']
-            aux = (name, native_name, alpha2_code, flag)
+            
+            lat, lng = None, None
+            
+            if 'latlng' in country:
+                lat, lng = country['latlng']
+
+            aux = (name, native_name, alpha2_code, flag, lat, lng)
             countries.append(aux)
 
     return countries

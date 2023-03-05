@@ -12,6 +12,8 @@ class Country(models.Model):
     flag = models.URLField(max_length=100)
     woeid = models.IntegerField(null=True)
     pn = models.CharField(max_length=30, null=True)
+    lat = models.FloatField(null=True)
+    lng = models.FloatField(null=True)
 
     def __str__(self):
         return self.name
@@ -130,7 +132,7 @@ class GoogleRelatedTopic(models.Model):
 class YouTubeTrend(models.Model):
     
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=1000)
+    title = models.CharField(max_length=200)
     published_at = models.DateTimeField()
     thumbnail = models.URLField(max_length=100)
     view_count = models.BigIntegerField(null=True)

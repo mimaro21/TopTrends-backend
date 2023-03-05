@@ -586,7 +586,7 @@ class YouTubeTrendsTest(TestCase):
         schema = graphene.Schema(query=Query)
         result = schema.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(len(result.data['countryYouTubeTrends']), 25)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 10)
 
     def test_correct_country_undefined_trends_number(self):
 

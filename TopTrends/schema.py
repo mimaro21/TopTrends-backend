@@ -36,11 +36,16 @@ class YouTubeTrendType(DjangoObjectType):
 
 class Query(ObjectType):
 
-    all_countries = graphene.List(CountryType)
+    all_countries = graphene.List(CountryType, acronym=graphene.String())
 
     def resolve_all_countries(self, info, **kwargs):
 
         load_countries()
+
+        acronym = kwargs.get('acronym', None)
+
+        if acronym:
+            return Country.objects.filter(acronym=acronym.upper())
 
         return Country.objects.all()
 
@@ -112,7 +117,9 @@ class Query(ObjectType):
             else:
                 load_google_word_trend(word, country_name, period_type)
 
-            return GoogleWordTrendPeriod.objects.filter(word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)         
+            aux = GoogleWordTrendPeriod.objects.filter(word_trend__country__name=country_name, word_trend__word=word, word_trend__period_type=period_type)         
+
+            return sorted(aux, key=lambda x: x.id)
 
         return []
 
