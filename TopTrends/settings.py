@@ -99,6 +99,9 @@ DATABASES = {
         "PASSWORD": "toptrends-password",
         "HOST": "localhost",
         "PORT": "3307",
+        "OPTIONS": {
+            "charset": "utf8mb4",
+        },
     }
 }
 

@@ -218,7 +218,7 @@ class YouTubeTrendModelTest(TestCase):
     def test_correct_yt_trend_model_create_max_length_title(self):
 
         yt_trend = YouTubeTrend.objects.create(
-            title='T' * 1000,
+            title='T' * 200,
             published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
             thumbnail=URL,
             view_count=1000,
@@ -227,7 +227,7 @@ class YouTubeTrendModelTest(TestCase):
             channel_title='channel_title',
             country_trend=self.yt_country_trend
         )
-        self.assertEqual(yt_trend.title, 'T'*1000)
+        self.assertEqual(yt_trend.title, 'T'*200)
 
     def test_incorrect_yt_trend_model_create_without_title(self):
         
@@ -262,7 +262,7 @@ class YouTubeTrendModelTest(TestCase):
         
         with self.assertRaises(Exception):
             YouTubeTrend.objects.create(
-                title='T'*1001,
+                title='T'*201,
                 published_at=datetime(2019, 1, 1, 0, 0, 0, 0, pytz.UTC),
                 thumbnail=URL,
                 view_count=1000,
@@ -643,10 +643,10 @@ class YouTubeTrendModelTest(TestCase):
 
         self.assertEqual(self.yt_trend.title, 'title')
 
-        self.yt_trend.title = 'T' * 1000
+        self.yt_trend.title = 'T' * 200
         self.yt_trend.save()
 
-        self.assertEqual(self.yt_trend.title, 'T' * 1000)
+        self.assertEqual(self.yt_trend.title, 'T' * 200)
 
     def test_incorrect_yt_trend_model_update_without_title(self):
 
@@ -669,7 +669,7 @@ class YouTubeTrendModelTest(TestCase):
         self.assertEqual(self.yt_trend.title, 'title')
 
         with self.assertRaises(Exception):
-            self.yt_trend.title = 'T' * 1001
+            self.yt_trend.title = 'T' * 201
             self.yt_trend.save()
 
     # 'published_at' field

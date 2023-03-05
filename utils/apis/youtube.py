@@ -16,9 +16,13 @@ def get_country_trends(country_name, trend_type):
         if YouTubeTrendType.objects.filter(name=trend_type).exists():
             if trend_type != 'Default':
                 category_id = YouTubeTrendType.objects.get(name=trend_type).category_id
-                url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=" + acronym + "&videoCategoryId=" + str(category_id) + "&key=" + youtube_api_key
+                url = ("https://www.googleapis.com/youtube/v3/videos" + 
+                        "?part=snippet&chart=mostPopular&regionCode=" + acronym + 
+                        "&videoCategoryId=" + str(category_id) + "&key=" + youtube_api_key)
             else:
-                url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=" + acronym + "&key=" + youtube_api_key
+                url = ("https://www.googleapis.com/youtube/v3/videos" + 
+                        "?part=snippet&chart=mostPopular&regionCode=" + acronym + 
+                        "&key=" + youtube_api_key)
 
             response = requests.get(url)
             return get_country_trends_aux(response, url, [], 0)
@@ -30,7 +34,7 @@ def get_country_trends_aux(response, url, res, trends_number):
 
     res_aux = res.copy()
 
-    if response.status_code == 200 and trends_number <= 20:
+    if response.status_code == 200 and trends_number < 10:
         data = response.json()
         videos = data['items']
 
@@ -135,5 +139,5 @@ def load_country_trends(country_name, trend_type):
             yct.save()
 
             for t in trends:
-                yt = YouTubeTrend(title=t[0].encode("utf-8"), published_at=timezone("UTC").localize(datetime.strptime(t[1], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[2], channel_title=t[3], view_count=t[4][0], like_count=t[4][1], comment_count=t[4][2], country_trend=yct)
+                yt = YouTubeTrend(title=t[0], published_at=timezone("UTC").localize(datetime.strptime(t[1], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[2], channel_title=t[3], view_count=t[4][0], like_count=t[4][1], comment_count=t[4][2], country_trend=yct)
                 yt.save()
