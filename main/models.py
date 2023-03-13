@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.core.validators import MinValueValidator,  MaxValueValidator
 
 # Create your models here.
 
@@ -12,8 +13,8 @@ class Country(models.Model):
     flag = models.URLField(max_length=100)
     woeid = models.IntegerField(null=True)
     pn = models.CharField(max_length=30, null=True)
-    lat = models.FloatField(null=True)
-    lng = models.FloatField(null=True)
+    lat = models.FloatField(null=True, validators=[MinValueValidator(-90), MaxValueValidator(90)])
+    lng = models.FloatField(null=True, validators=[MinValueValidator(-180), MaxValueValidator(180)])
 
     def __str__(self):
         return self.name
