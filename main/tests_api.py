@@ -15,7 +15,9 @@ class CountriesTest(TestCase):
                     acronym,
                     flag,
                     woeid,
-                    pn
+                    pn,
+                    lat,
+                    lng
                 } 
             }
         """
@@ -24,6 +26,52 @@ class CountriesTest(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['allCountries']), 250)
+
+    def test_correct_specific_country(self):
+
+        query = """
+            query{
+                allCountries(acronym: "ES"){
+                    id,
+                    name,
+                    nativeName,
+                    acronym,
+                    flag,
+                    woeid,
+                    pn,
+                    lat,
+                    lng
+                } 
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['allCountries'][0]['name'], 'Spain') 
+
+    def test_correct_specific_country_not_found(self):
+
+        query = """
+            query{
+                allCountries(acronym: "AA"){
+                    id,
+                    name,
+                    nativeName,
+                    acronym,
+                    flag,
+                    woeid,
+                    pn,
+                    lat,
+                    lng
+                } 
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['allCountries']), 0)
 
 class TwitterTrendsTest(TestCase):
 
