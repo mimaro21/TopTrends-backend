@@ -2,6 +2,9 @@ import tweepy
 from decouple import config
 import json
 from main.models import Country, TwitterTrend, TwitterCountryTrend
+import re
+from googletrans import Translator
+import emoji
 
 def api_setup():
     
@@ -73,3 +76,30 @@ def load_country_trends(country_name):
         for t in trends:
             t = TwitterTrend.objects.create(name=t[0], url=t[1], tweet_volume=t[2], country_trend=tct)
             t.save()
+
+def translate_to_english(text):
+    translator = Translator()
+    text_en = translator.translate(text, dest='en').text
+
+    return text_en
+
+def get_relevant_tweets(trend):
+
+    api = api_setup()
+
+    tweets = api.search_tweets(q=trend, count=20, result_type='popular')
+
+    res = []
+
+    for tweet in tweets:
+        if not tweet.retweeted and 'RT @' not in tweet.text:
+            tweet = translate_to_english(tweet.text)            
+            no_emoji_text = emoji.get_emoji_regexp().sub(u'', tweet)
+            no_url_text = re.sub(r"http\S+", "", no_emoji_text)
+            no_mention_text = re.sub(r"@\S+", "", no_url_text)
+            no_hashtag_text = re.sub(r"#\S+", "", no_mention_text)
+            clean_tweet = no_hashtag_text.replace('\n', ' ').replace('\r', '').strip()
+            if clean_tweet != '':
+                res.append(clean_tweet)
+
+    return res

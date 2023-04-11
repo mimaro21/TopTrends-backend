@@ -2,13 +2,14 @@ import graphene
 from graphene import ObjectType
 from graphene_django import DjangoObjectType
 
-from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic, YouTubeTrend, YouTubeCountryTrend
+from main.models import Country, TwitterTrend, TwitterCountryTrend, GoogleTrend, GoogleCountryTrend, GoogleWordTrendPeriod, GoogleWordTrend, GoogleTopic, GoogleRelatedTopic, YouTubeTrend, YouTubeCountryTrend, TrendEmotion
 
 from utils.apis.twitter import load_country_trends as load_twitter_country_trends
 from utils.apis.google_trends import load_country_trends as load_google_country_trends
 from utils.apis.google_trends import load_google_word_trend, load_related_topics
 from utils.apis.youtube import load_country_trends as load_youtube_country_trends
 from utils.aux_functions import setup_countries, setup_words, remove_cache, load_countries
+from utils.ai.neuronal_network import load_trend_emotions
 
 class CountryType(DjangoObjectType):
     class Meta:
@@ -33,6 +34,10 @@ class RelatedTopic(DjangoObjectType):
 class YouTubeTrendType(DjangoObjectType):
     class Meta:
         model = YouTubeTrend
+
+class TrendEmotionType(DjangoObjectType):
+    class Meta:
+        model = TrendEmotion
 
 class Query(ObjectType):
 
@@ -172,5 +177,24 @@ class Query(ObjectType):
             return YouTubeTrend.objects.filter(country_trend__country__name=name, country_trend__trend_type__name=trend_type)[:trends_number]
 
         return []
+
+    trend_emotions = graphene.List(TrendEmotionType, word=graphene.String())
+
+    def resolve_trend_emotions(self, info, **kwargs):
+
+        word = kwargs.get('word')
+
+        if TrendEmotion.objects.filter(word=word).exists():
+
+            trend_emotions = TrendEmotion.objects.get(word=word)
+            cond_1 = remove_cache(trend_emotions)
+
+            if cond_1:
+                load_trend_emotions(word)
+
+        else:
+            load_trend_emotions(word)
+
+        return TrendEmotion.objects.filter(word=word)
 
 schema = graphene.Schema(query=Query)
