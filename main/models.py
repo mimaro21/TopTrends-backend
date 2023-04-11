@@ -172,3 +172,19 @@ class YouTubeCountryTrend(models.Model):
 
     class Meta:
         ordering = ['country', 'id']
+
+class TrendEmotion(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    negative_emotion = models.FloatField()
+    neutral_emotion = models.FloatField()
+    positive_emotion = models.FloatField()
+    mayority_emotion = models.CharField(max_length=8)
+    insertion_datetime = models.DateTimeField(auto_now_add=True)
+    word = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.word + '-' + str(self.insertion_datetime)
+
+    class Meta:
+        ordering = ['word', 'insertion_datetime', 'id']

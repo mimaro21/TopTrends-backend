@@ -9,6 +9,9 @@ media
 # Backup files #
 *.bak
 
+# Tokenizer file #
+tokenizer.pkl
+
 # If you are using PyCharm #
 # User-specific stuff
 .idea/**/workspace.xml
