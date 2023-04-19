@@ -5,7 +5,7 @@ from main.models import Country
 
 FLAG_URL = 'https://flagcdn.com/br.svg'
 
-class CountryModelTest(TestCase):
+class CountryModelTestCase(TestCase):
 
     def setUp(self):
 

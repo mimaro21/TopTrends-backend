@@ -6,7 +6,7 @@ from main.models import Country, TwitterTrend, TwitterCountryTrend
 TREND_URL = 'https://trend.com'
 
 
-class TwitterTrendModelTest(TestCase):
+class TwitterTrendModelTestCase(TestCase):
 
     def setUp(self):
         

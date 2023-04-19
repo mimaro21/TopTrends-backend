@@ -174,7 +174,7 @@ class YouTubeTrendTypeTestCase(TestCase):
         self.assertEqual(YouTubeTrendType.objects.count(), 0)
     
 
-class YouTubeTrendModelTest(TestCase):
+class YouTubeTrendModelTestCase(TestCase):
 
     def setUp(self):
 
@@ -879,7 +879,7 @@ class YouTubeTrendModelTest(TestCase):
         self.assertEqual(YouTubeTrend.objects.count(), 0)
 
 
-class YouTubeCountryTrendModelTest(TestCase):
+class YouTubeCountryTrendModelTestCase(TestCase):
 
     def setUp(self):
 

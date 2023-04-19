@@ -2,7 +2,7 @@ from TopTrends.schema import Query
 from django.test.testcases import TestCase
 import graphene
 
-class CountriesTest(TestCase):
+class CountriesTestCase(TestCase):
 
     def test_correct_all_countries(self):
 
@@ -73,7 +73,7 @@ class CountriesTest(TestCase):
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['allCountries']), 0)
 
-class TwitterTrendsTest(TestCase):
+class TwitterTrendsTestCase(TestCase):
 
     def test_correct_country_defined_trends_number(self):
 
@@ -153,7 +153,7 @@ class TwitterTrendsTest(TestCase):
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['countryTwitterTrends']), 0)
 
-class GoogleTrendsTest(TestCase):
+class GoogleTrendsTestCase(TestCase):
 
     def test_correct_country_defined_trends_number(self):
 
@@ -225,7 +225,7 @@ class GoogleTrendsTest(TestCase):
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['countryGoogleTrends']), 0)
 
-class WordGoogleTrendsTest(TestCase):
+class WordGoogleTrendsTestCase(TestCase):
 
     def test_correct_country_daily_period(self):
 
@@ -314,7 +314,7 @@ class WordGoogleTrendsTest(TestCase):
             self.assertIsNone(result.errors)
             self.assertEqual(len(result.data['wordGoogleTrends']), 0)
 
-class WordRelatedTopicsTest(TestCase):
+class WordRelatedTopicsTestCase(TestCase):
 
     def test_correct_country_daily_period(self):
 
@@ -430,7 +430,7 @@ class WordRelatedTopicsTest(TestCase):
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['wordRelatedTopics']), 10)
 
-class YouTubeTrendsTest(TestCase):
+class YouTubeTrendsTestCase(TestCase):
     
     def test_correct_country_defined_trends_number_default_type(self):
 
@@ -701,3 +701,47 @@ class YouTubeTrendsTest(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['countryYouTubeTrends']), 0)
+
+class EmotionsTestCase(TestCase):
+
+    def test_correct_trend_emotions(self):
+
+        query = """
+            query{
+                trendEmotions(word: "Messi"){
+                    id,
+                    negativeEmotion,
+                    neutralEmotion,
+                    positiveEmotion,
+                    majorityEmotion,
+                    insertionDatetime,
+                    word
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['trendEmotions'][0]['word'], 'Messi')
+
+    def test_correct_trend_emotions_word_not_found(self):
+
+        query = """
+            query{
+                trendEmotions(word: "ABCHJKGJFYDGFHCBHJJ"){
+                    id,
+                    negativeEmotion,
+                    neutralEmotion,
+                    positiveEmotion,
+                    majorityEmotion,
+                    insertionDatetime,
+                    word
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['trendEmotions']), 0)
