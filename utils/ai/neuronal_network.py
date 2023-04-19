@@ -47,6 +47,9 @@ def model_predict(trend):
 
     tweets = get_relevant_tweets(trend)
 
+    if len(tweets) == 0:
+        return None, None, None, None
+
     all_res = []
     
     model = keras.models.load_model('trained_model.h5')
@@ -74,12 +77,11 @@ def load_trend_emotions(trend):
     
     emotion, negative, neutral, positive = model_predict(trend)
 
-    print(emotion, negative, neutral, positive)
+    if not emotion or not negative or not neutral or not positive:
+        return None
 
     if TrendEmotion.objects.filter(word=trend).exists():
         TrendEmotion.objects.filter(word=trend).delete()
 
-    te = TrendEmotion(word=trend, mayority_emotion=emotion, negative_emotion=negative, neutral_emotion=neutral, positive_emotion=positive)
+    te = TrendEmotion(word=trend, majority_emotion=emotion, negative_emotion=negative, neutral_emotion=neutral, positive_emotion=positive)
     te.save()
-
-    return emotion, negative, neutral, positive

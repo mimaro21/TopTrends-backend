@@ -882,7 +882,7 @@ class GoogleTopicModelTestCase(TestCase):
         self.assertEqual(GoogleTopic.objects.count(), 0)
 
 
-class GoogleRelatedTopicModelTest(TestCase):
+class GoogleRelatedTopicModelTestCase(TestCase):
 
     def setUp(self):
         

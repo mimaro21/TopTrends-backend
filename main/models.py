@@ -176,10 +176,10 @@ class YouTubeCountryTrend(models.Model):
 class TrendEmotion(models.Model):
 
     id = models.AutoField(primary_key=True)
-    negative_emotion = models.FloatField()
-    neutral_emotion = models.FloatField()
-    positive_emotion = models.FloatField()
-    mayority_emotion = models.CharField(max_length=8)
+    negative_emotion = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
+    neutral_emotion = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
+    positive_emotion = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
+    majority_emotion = models.CharField(max_length=8)
     insertion_datetime = models.DateTimeField(auto_now_add=True)
     word = models.CharField(max_length=100)
 
