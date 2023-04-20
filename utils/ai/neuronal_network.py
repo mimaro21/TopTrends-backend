@@ -8,6 +8,7 @@ import numpy as np
 from datasets import load_dataset
 import pickle
 from utils.apis.twitter import get_relevant_tweets
+from utils.apis.youtube import get_relevant_comments
 from main.models import TrendEmotion
 
 tokenizer = None
@@ -35,7 +36,7 @@ def get_sequences(tokenizer, texts):
     padded = pad_sequences(sequences, truncating='post', padding='post', maxlen=35)
     return padded
 
-def model_predict(trend):
+def model_predict(word, video_id):
     
     global tokenizer
     if not tokenizer:
@@ -45,9 +46,13 @@ def model_predict(trend):
         except:
             tokenizer = init_tokenizer()
 
-    tweets = get_relevant_tweets(trend)
+    texts = []
+    if word != None and video_id == None:
+        texts = get_relevant_tweets(word)
+    elif word == None and video_id != None:
+        texts = get_relevant_comments(video_id, 50)
 
-    if len(tweets) == 0:
+    if len(texts) == 0:
         return None, None, None, None
 
     all_res = []
@@ -56,8 +61,8 @@ def model_predict(trend):
 
     negative, neutral, positive = 0, 0, 0
 
-    for tweet in tweets:
-        seq = get_sequences(tokenizer,[tweet])
+    for text in texts:
+        seq = get_sequences(tokenizer,[text])
         result = model.predict(np.expand_dims(seq[0], axis=0))[0]
 
         negative += result[0]
@@ -73,15 +78,28 @@ def model_predict(trend):
         
     return index_to_label[np.argmax(np.bincount(all_res))], total_negative, total_neutral, total_positive
 
-def load_trend_emotions(trend):
+def load_trend_emotions(word, video_id):
     
-    emotion, negative, neutral, positive = model_predict(trend)
+    if word != None and video_id == None:
+        emotion, negative, neutral, positive = model_predict(word, None)
 
-    if not emotion or not negative or not neutral or not positive:
-        return None
+        if not emotion or not negative or not neutral or not positive:
+            return None
 
-    if TrendEmotion.objects.filter(word=trend).exists():
-        TrendEmotion.objects.filter(word=trend).delete()
+        if TrendEmotion.objects.filter(word=word).exists():
+            TrendEmotion.objects.filter(word=word).delete()
 
-    te = TrendEmotion(word=trend, majority_emotion=emotion, negative_emotion=negative, neutral_emotion=neutral, positive_emotion=positive)
-    te.save()
+        te = TrendEmotion(word=word, majority_emotion=emotion, negative_emotion=negative, neutral_emotion=neutral, positive_emotion=positive)
+        te.save()
+
+    elif word == None and video_id != None:
+        emotion, negative, neutral, positive = model_predict(None, video_id)
+
+        if not emotion or not negative or not neutral or not positive:
+            return None
+
+        if TrendEmotion.objects.filter(video_id=video_id).exists():
+            TrendEmotion.objects.filter(video_id=video_id).delete()
+
+        te = TrendEmotion(video_id=video_id, majority_emotion=emotion, negative_emotion=negative, neutral_emotion=neutral, positive_emotion=positive)
+        te.save()

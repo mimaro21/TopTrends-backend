@@ -166,11 +166,6 @@ class TrendEmotionModelTestCase(TestCase):
         trend_emotion = TrendEmotion.objects.create(negative_emotion = 0.5, neutral_emotion = 0.4, positive_emotion = 0.1, majority_emotion = 'negative', word = 'test')
         self.assertEqual(trend_emotion.majority_emotion, 'negative')
 
-    def test_incorrect_trend_emotion_creation_without_word(self):
-
-        with self.assertRaises(Exception):
-            trend_emotion = TrendEmotion.objects.create(negative_emotion = 0.5, neutral_emotion = 0.4, positive_emotion = 0.1, majority_emotion = 'negative', word = None)
-
     def test_incorrect_trend_emotion_creation_blank_word(self):
 
         with self.assertRaises(Exception):
@@ -398,14 +393,6 @@ class TrendEmotionModelTestCase(TestCase):
         self.trend_emotion.word = 't' * 100
         self.trend_emotion.save()
         self.assertEqual(self.trend_emotion.word, 't' * 100)
-
-    def test_incorrect_trend_emotion_update_without_word(self):
-
-        self.assertEqual(self.trend_emotion.word, 'test')
-
-        with self.assertRaises(Exception):
-            self.trend_emotion.word = None
-            self.trend_emotion.save()
 
     def test_incorrect_trend_emotion_update_blank_word(self):
 
