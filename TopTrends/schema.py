@@ -178,23 +178,43 @@ class Query(ObjectType):
 
         return []
 
-    trend_emotions = graphene.List(TrendEmotionType, word=graphene.String())
+    trend_emotions = graphene.List(TrendEmotionType, word=graphene.String(), video_id=graphene.String())
 
     def resolve_trend_emotions(self, info, **kwargs):
 
         word = kwargs.get('word')
+        video_id = kwargs.get('video_id')
 
-        if TrendEmotion.objects.filter(word=word).exists():
+        if word != None and video_id == None:
 
-            trend_emotions = TrendEmotion.objects.get(word=word)
-            cond_1 = remove_cache(trend_emotions)
+            if TrendEmotion.objects.filter(word=word).exists():
 
-            if cond_1:
-                load_trend_emotions(word)
+                trend_emotions = TrendEmotion.objects.get(word=word)
+                cond_1 = remove_cache(trend_emotions)
 
-        else:
-            load_trend_emotions(word)
+                if cond_1:
+                    load_trend_emotions(word, None)
 
-        return TrendEmotion.objects.filter(word=word)
+            else:
+                load_trend_emotions(word, None)
+
+            return TrendEmotion.objects.filter(word=word)
+
+        elif word == None and video_id != None:
+            
+            if TrendEmotion.objects.filter(video_id=video_id).exists():
+                
+                trend_emotions = TrendEmotion.objects.get(video_id=video_id)
+                cond_1 = remove_cache(trend_emotions)
+
+                if cond_1:
+                    load_trend_emotions(None, video_id)
+
+            else:
+                load_trend_emotions(None, video_id)
+
+            return TrendEmotion.objects.filter(video_id=video_id)
+
+        return []
 
 schema = graphene.Schema(query=Query)

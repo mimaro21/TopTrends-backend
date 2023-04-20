@@ -39,12 +39,13 @@ def get_country_trends_aux(response, url, res, trends_number):
         videos = data['items']
 
         for video in videos:
+            video_id = video['id']
             title = video['snippet']['title'] if 'title' in video['snippet'].keys() else ''
             published_at = video['snippet']['publishedAt'] if 'publishedAt' in video['snippet'].keys() else ''
             thumbnail = get_thumbnail_url(video) if 'thumbnails' in video['snippet'].keys() else ''
             channel_title = video['snippet']['channelTitle'] if 'channelTitle' in video['snippet'].keys() else ''
-            statistics = get_video_staistics(video['id']) if 'id' in video.keys() else (None, None, None)
-            aux = [title, published_at, thumbnail, channel_title, statistics]
+            statistics = get_video_statistics(video_id) if 'id' in video.keys() else (None, None, None)
+            aux = [video_id, title, published_at, thumbnail, channel_title, statistics]
             res_aux.append(aux)
 
         if 'nextPageToken' in data.keys():
@@ -76,7 +77,7 @@ def get_thumbnail_url(video):
     else:
         return ""
 
-def get_video_staistics(video_id):
+def get_video_statistics(video_id):
 
     youtube_api_key = config('YOUTUBE_API_KEY')
 
@@ -139,5 +140,34 @@ def load_country_trends(country_name, trend_type):
             yct.save()
 
             for t in trends:
-                yt = YouTubeTrend(title=t[0], published_at=timezone("UTC").localize(datetime.strptime(t[1], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[2], channel_title=t[3], view_count=t[4][0], like_count=t[4][1], comment_count=t[4][2], country_trend=yct)
+                yt = YouTubeTrend(video_id=t[0], title=t[1], published_at=timezone("UTC").localize(datetime.strptime(t[2], "%Y-%m-%dT%H:%M:%SZ")), thumbnail=t[3], channel_title=t[4], view_count=t[5][0], like_count=t[5][1], comment_count=t[5][2], country_trend=yct)
                 yt.save()
+
+def get_relevant_comments(video_id, number_of_comments, comments_ls=[], next_page_token=None):
+
+    youtube_api_key = config('YOUTUBE_API_KEY')
+
+    url = "https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=" + video_id + "&key=" + youtube_api_key
+    if next_page_token != None:
+        url += "&pageToken=" + next_page_token
+    
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        if len(comments_ls) >= 500 or (len(comments_ls) > 0 and next_page_token == None):
+            return [c for c, l in comments_ls[:number_of_comments]]
+        else:
+            data = response.json()
+            comments = data['items']
+
+            for comment in comments:
+                if 'snippet' in comment.keys():
+                    comment_text = comment['snippet']['topLevelComment']['snippet']['textDisplay']
+                    comment_likes = comment['snippet']['topLevelComment']['snippet']['likeCount']
+                    comments_ls.append((comment_text, comment_likes))
+
+            comments_ls.sort(key=lambda x: x[1], reverse=True)
+
+            return get_relevant_comments(video_id, number_of_comments, comments_ls, data['nextPageToken'] if 'nextPageToken' in data.keys() else None)
+    else:
+        return comments_ls
