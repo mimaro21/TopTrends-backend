@@ -9,8 +9,9 @@ media
 # Backup files #
 *.bak
 
-# Tokenizer file #
-tokenizer.pkl
+# Tokenizer files #
+tokenizer_1.pkl
+tokenizer_2.pkl
 
 # If you are using PyCharm #
 # User-specific stuff
