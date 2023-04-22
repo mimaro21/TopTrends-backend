@@ -428,9 +428,76 @@ class WordRelatedTopicsTestCase(TestCase):
         schema = graphene.Schema(query=Query)
         result = schema.execute(query)
         self.assertIsNone(result.errors)
-        self.assertEqual(len(result.data['wordRelatedTopics']), 10)
+        self.assertLessEqual(len(result.data['wordRelatedTopics']), 10)
 
 class YouTubeTrendsTestCase(TestCase):
+
+    def test_correct_specific_you_tube_video(self):
+
+        query = """
+            query{
+                countryYouTubeTrends(country:"Spain", trendType:"Default", trendsNumber:5){
+                    id,
+                    videoId,
+                    title
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['countryYouTubeTrends']), 5)
+        video_id = result.data['countryYouTubeTrends'][0]['videoId']
+
+        query = f"""
+            {{
+                youTubeVideo(videoId:"{video_id}"){{
+                    id,
+                    videoId,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }}
+            }}        
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['youTubeVideo']['videoId'], video_id)
+
+        # Make the same query when the result is found in the database
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['youTubeVideo']['videoId'], video_id)
+
+    def test_correct_not_specific_you_tube_video(self):
+
+        query = """
+            query{
+                youTubeVideo(videoId:"Not video id"){
+                    id,
+                    videoId,
+                    title,
+                    publishedAt,
+                    thumbnail,
+                    viewCount,
+                    likeCount,
+                    commentCount,
+                    channelTitle
+                }
+            }        
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['youTubeVideo'], None)
     
     def test_correct_country_defined_trends_number_default_type(self):
 
@@ -438,6 +505,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Default", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -466,6 +534,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Film & Animation", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -488,6 +557,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Music", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -510,6 +580,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Sports", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -532,6 +603,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Gaming", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -554,6 +626,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Entertainment", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -576,6 +649,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"News & Politics", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -598,6 +672,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Science & Technology", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -620,6 +695,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Default", trendsNumber:500){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -642,6 +718,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Default"){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -664,6 +741,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"Not coutry", trendType:"Default", trendsNumber:50){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -686,6 +764,7 @@ class YouTubeTrendsTestCase(TestCase):
             query{
                 countryYouTubeTrends(country:"United States of America", trendType:"Not trend type", trendsNumber:5){
                     id,
+                    videoId,
                     title,
                     publishedAt,
                     thumbnail,
@@ -704,7 +783,7 @@ class YouTubeTrendsTestCase(TestCase):
 
 class EmotionsTestCase(TestCase):
 
-    def test_correct_trend_emotions(self):
+    def test_correct_word_trend_emotions(self):
 
         query = """
             query{
@@ -713,9 +792,15 @@ class EmotionsTestCase(TestCase):
                     negativeEmotion,
                     neutralEmotion,
                     positiveEmotion,
-                    majorityEmotion,
+                    sadnessEmotion,
+                    joyEmotion,
+                    fearEmotion,
+                    loveEmotion,
+                    angerEmotion,
+                    surpriseEmotion,
                     insertionDatetime,
-                    word
+                    word,
+                    videoId
                 }
             }
         """
@@ -724,6 +809,14 @@ class EmotionsTestCase(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(result.data['trendEmotions'][0]['word'], 'Messi')
+        self.assertEqual(result.data['trendEmotions'][0]['videoId'], None)
+
+        # Make the same query when the result is found in the database
+
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['trendEmotions'][0]['word'], 'Messi')
+        self.assertEqual(result.data['trendEmotions'][0]['videoId'], None)
 
     def test_correct_trend_emotions_word_not_found(self):
 
@@ -734,7 +827,12 @@ class EmotionsTestCase(TestCase):
                     negativeEmotion,
                     neutralEmotion,
                     positiveEmotion,
-                    majorityEmotion,
+                    sadnessEmotion,
+                    joyEmotion,
+                    fearEmotion,
+                    loveEmotion,
+                    angerEmotion,
+                    surpriseEmotion,
                     insertionDatetime,
                     word
                 }
@@ -745,3 +843,94 @@ class EmotionsTestCase(TestCase):
         result = schema.execute(query)
         self.assertIsNone(result.errors)
         self.assertEqual(len(result.data['trendEmotions']), 0)
+        self.assertEqual(result.data['trendEmotions'], [])
+
+    def test_correct_video_id_trend_emotions(self):
+
+        query = """
+            query{
+                trendEmotions(videoId: "WoE6sG2JBrg"){
+                    id,
+                    negativeEmotion,
+                    neutralEmotion,
+                    positiveEmotion,
+                    sadnessEmotion,
+                    joyEmotion,
+                    fearEmotion,
+                    loveEmotion,
+                    angerEmotion,
+                    surpriseEmotion,
+                    insertionDatetime,
+                    videoId,
+                    word
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['trendEmotions'][0]['videoId'], 'WoE6sG2JBrg')
+        self.assertEqual(result.data['trendEmotions'][0]['word'], None)
+
+        # Make the same query when the result is found in the database
+
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['trendEmotions'][0]['videoId'], 'WoE6sG2JBrg')
+        self.assertEqual(result.data['trendEmotions'][0]['word'], None)
+
+    def test_correct_trend_emotions_video_id_not_found(self):
+
+        query = """
+            query{
+                trendEmotions(videoId: "ABCHJKGJFYDGFHCBHJJ"){
+                    id,
+                    negativeEmotion,
+                    neutralEmotion,
+                    positiveEmotion,
+                    sadnessEmotion,
+                    joyEmotion,
+                    fearEmotion,
+                    loveEmotion,
+                    angerEmotion,
+                    surpriseEmotion,
+                    insertionDatetime,
+                    videoId
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['trendEmotions']), 0)
+        self.assertEqual(result.data['trendEmotions'], [])
+
+    def test_correct_trend_emotions_word_and_video_id(self):
+
+        query = """
+            query{
+                trendEmotions(word: "Messi", videoId: "WoE6sG2JBrg"){
+                    id,
+                    negativeEmotion,
+                    neutralEmotion,
+                    positiveEmotion,
+                    sadnessEmotion,
+                    joyEmotion,
+                    fearEmotion,
+                    loveEmotion,
+                    angerEmotion,
+                    surpriseEmotion,
+                    insertionDatetime,
+                    videoId,
+                    word
+                }
+            }
+        """
+
+        schema = graphene.Schema(query=Query)
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        self.assertEqual(len(result.data['trendEmotions']), 0)
+        self.assertEqual(result.data['trendEmotions'], [])

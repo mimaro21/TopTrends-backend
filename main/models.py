@@ -188,9 +188,11 @@ class TrendEmotion(models.Model):
     joy_emotion = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
     insertion_datetime = models.DateTimeField(auto_now_add=True)
     word = models.CharField(max_length=100, null=True)
-    video_id = models.CharField(max_length=100, null=True)
+    video_id = models.CharField(max_length=30, null=True)
 
     def __str__(self):
+        if self.video_id:
+            return self.video_id + '-' + str(self.insertion_datetime)
         return self.word + '-' + str(self.insertion_datetime)
 
     class Meta:
