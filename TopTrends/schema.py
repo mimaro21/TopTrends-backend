@@ -153,6 +153,18 @@ class Query(ObjectType):
 
         return []
 
+    you_tube_video = graphene.Field(YouTubeTrendType, video_id=graphene.String())
+
+    def resolve_you_tube_video(self, info, **kwargs):
+
+        video_id = kwargs.get('video_id')
+
+        if YouTubeTrend.objects.filter(video_id=video_id).exists():
+
+            return YouTubeTrend.objects.get(video_id=video_id)
+
+        return None
+
     country_you_tube_trends = graphene.List(YouTubeTrendType, country=graphene.String(), trend_type=graphene.String(), trends_number=graphene.Int())
 
     def resolve_country_you_tube_trends(self, info, **kwargs):
