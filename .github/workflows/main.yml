@@ -58,8 +58,3 @@ jobs:
         run: |
           coverage run --branch --source=. ./manage.py test  --keepdb
           coverage xml
-      - name: Codacy Coverage Reporter
-        uses: codacy/codacy-coverage-reporter-action@v1
-        with:
-          project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: ./coverage.xml
